@@ -6,7 +6,8 @@ The Go tests in `internal/server/server_test.go` talk to the real helper over it
 
 ## Transport
 
-- A local Unix socket. On the Machine it is `/run/pisowifi/helper.sock`. On a development PC the default is `pisowifi-helper.sock` in the temp directory, and `-socket` changes it.
+- A local Unix socket. The default is `pisowifi-helper.sock` in the temp directory, which suits a development PC, and `-socket` changes it. On the Machine it is `/run/pisowifi/helper.sock`.
+- Connecting needs write permission on the socket. On the Machine the helper runs as root and the app does not, so the helper is started with `-socket-group <the app's group>`: the socket then belongs to that group with mode `0660`, and only root and that group can connect. On a development PC the helper and the app run as the same user, so no group is needed.
 - Each message is one JSON object on one line, ended by `\n`. Lines are at most 1 MiB. A longer line gets a `bad_request` reply with `"id": null`, and the helper closes the connection.
 - The app connects. The helper never connects to the app.
 - The app may send several requests without waiting. Replies may arrive between events, so the app matches each reply to its request by `id`.

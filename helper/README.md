@@ -41,6 +41,14 @@ GOOS=linux GOARCH=arm GOARM=7 go build -o dist/pisowifi-helper-armv7 ./cmd/pisow
 GOOS=linux GOARCH=arm64 go build -o dist/pisowifi-helper-arm64 ./cmd/pisowifi-helper
 ```
 
+On the Machine the helper runs as root, and the app connects without root. Start it with the app's group so the app can reach the socket:
+
+```sh
+pisowifi-helper -socket /run/pisowifi/helper.sock -socket-group pisowifi
+```
+
+The socket then has that group and mode `0660`. The directory `/run/pisowifi` has to exist first; the install script sets it up.
+
 The real hardware backends come in a later ticket. Until then, the binary only has the simulator backend.
 
 ## Layout
