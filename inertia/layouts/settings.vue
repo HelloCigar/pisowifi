@@ -7,23 +7,23 @@ const links = [
     {
       label: 'General',
       icon: 'i-lucide-user',
-      to: urlFor('settings.general'),
+      to: urlFor('templates.settings_general'),
       exact: true,
     },
     {
       label: 'Members',
       icon: 'i-lucide-users',
-      to: urlFor('settings.members'),
+      to: urlFor('templates.settings_members.index'),
     },
     {
       label: 'Notifications',
       icon: 'i-lucide-bell',
-      to: urlFor('settings.notifications'),
+      to: urlFor('templates.settings_notifications'),
     },
     {
       label: 'Security',
       icon: 'i-lucide-shield',
-      to: urlFor('settings.security'),
+      to: urlFor('templates.settings_security'),
     },
   ],
   [

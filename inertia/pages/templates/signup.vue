@@ -8,7 +8,8 @@ import AuthForm from '~/components/auth_form.vue'
 defineOptions({ layout: AuthLayout })
 
 /**
- * Validation rules live in `signupValidator` (app/validators/user.ts)
+ * Form template. Validation rules live in `signupValidator`
+ * (app/validators/user.ts)
  */
 const fields: AuthFormField[] = [
   {
@@ -49,7 +50,7 @@ const fields: AuthFormField[] = [
   <Head title="Create an account" />
 
   <AuthForm
-    route="new_account.store"
+    route="templates.signup.store"
     :fields="fields"
     icon="i-lucide-user-plus"
     title="Create your account"

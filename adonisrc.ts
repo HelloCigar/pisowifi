@@ -30,6 +30,7 @@ export default defineConfig({
     () => import('@adonisjs/lucid/commands'),
     () => import('@adonisjs/session/commands'),
     () => import('@adonisjs/inertia/commands'),
+    () => import('@outloud/adonis-scheduler/commands'),
   ],
 
   /*
@@ -59,6 +60,9 @@ export default defineConfig({
     () => import('@adonisjs/inertia/inertia_provider'),
     () => import('@adonisjs/auth/auth_provider'),
     () => import('#providers/api_provider'),
+    () => import('@outloud/adonis-scheduler/provider'),
+    () => import('@adonisjs/limiter/limiter_provider'),
+    () => import('@adonisjs/transmit/transmit_provider'),
   ],
 
   /*

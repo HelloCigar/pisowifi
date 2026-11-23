@@ -6,8 +6,8 @@ import { Head } from '@inertiajs/vue3'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
 import type { User } from '~/types/dashboard'
 import DashboardLayout from '~/layouts/dashboard.vue'
-import CustomersDeleteModal from '~/components/customers/customers_delete_modal.vue'
-import CustomersAddModal from '~/components/customers/customers_add_modal.vue'
+import TableDeleteModal from '~/components/templates/table/table_delete_modal.vue'
+import TableAddModal from '~/components/templates/table/table_add_modal.vue'
 
 defineOptions({ layout: DashboardLayout })
 
@@ -227,7 +227,7 @@ const pagination = ref({
         </template>
 
         <template #right>
-          <CustomersAddModal />
+          <TableAddModal />
         </template>
       </UDashboardNavbar>
     </template>
@@ -242,7 +242,7 @@ const pagination = ref({
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
-          <CustomersDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
+          <TableDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
             <UButton
               v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
               label="Delete"
@@ -256,7 +256,7 @@ const pagination = ref({
                 </UKbd>
               </template>
             </UButton>
-          </CustomersDeleteModal>
+          </TableDeleteModal>
 
           <USelect
             v-model="statusFilter"

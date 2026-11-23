@@ -2,9 +2,9 @@ import User from '#models/user'
 import { signupValidator } from '#validators/user'
 import type { HttpContext } from '@adonisjs/core/http'
 
-export default class NewAccountController {
+export default class SignupController {
   async create({ inertia }: HttpContext) {
-    return inertia.render('auth/signup', {})
+    return inertia.render('templates/signup', {})
   }
 
   async store({ request, response, auth }: HttpContext) {

@@ -7,9 +7,9 @@ import type { Notification } from '~/types/dashboard'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
 
-const { data: notifications } = useFetch(urlFor('notifications'), { initialData: [] }).json<
-  Notification[]
->()
+const { data: notifications } = useFetch(urlFor('templates.notifications.index'), {
+  initialData: [],
+}).json<Notification[]>()
 </script>
 
 <template>
@@ -18,7 +18,7 @@ const { data: notifications } = useFetch(urlFor('notifications'), { initialData:
       <Link
         v-for="notification in notifications"
         :key="notification.id"
-        route="inbox"
+        route="templates.list_detail.index"
         class="px-3 py-2.5 rounded-md hover:bg-elevated/50 flex items-center gap-3 relative -mx-3 first:-mt-3 last:-mb-3"
       >
         <UChip color="error" :show="!!notification.unread" inset>
