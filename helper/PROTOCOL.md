@@ -1,0 +1,96 @@
+# Helper protocol
+
+This is the contract between the AdonisJS app and the privileged helper (ADR 0002). Both sides follow it. A change to it changes the helper and the app together, in one image.
+
+The Go tests in `internal/server/server_test.go` talk to the real helper over its socket and check this contract. The app's in-memory fake of the helper client has to behave the same way.
+
+## Transport
+
+- A local Unix socket. On the Machine it is `/run/pisowifi/helper.sock`. On a development PC the default is `pisowifi-helper.sock` in the temp directory, and `-socket` changes it.
+- Each message is one JSON object on one line, ended by `\n`. Lines are at most 1 MiB.
+- The app connects. The helper never connects to the app.
+- The app may send several requests without waiting. Replies may arrive between events, so the app matches each reply to its request by `id`.
+
+## Messages
+
+**Request** (app → helper):
+
+```json
+{"id": 7, "method": "allow", "params": {"mac": "aa:bb:cc:00:00:01", "ip": "10.0.0.11", "speed_cap": {"down_kbps": 5000, "up_kbps": 2000}}}
+```
+
+- `id` is any JSON number or string the app chooses. The helper copies it into the reply.
+- `params` is required for every method except `health`.
+
+**Reply** (helper → app), one per request:
+
+```json
+{"id": 7, "ok": true}
+{"id": 8, "ok": true, "result": {"mac": "aa:bb:cc:00:00:01"}}
+{"id": 9, "ok": false, "error": {"code": "not_synced", "message": "every Device stays blocked until the first sync"}}
+```
+
+A line that is not valid JSON gets a `bad_request` reply with `"id": null`.
+
+**Event** (helper → app), pushed as it happens to every connected app. It has `event` and no `id`:
+
+```json
+{"event": "device_online", "data": {"mac": "aa:bb:cc:00:00:01", "ip": "10.0.0.11"}}
+```
+
+## Values
+
+- **MAC address**: any form Go's `net.ParseMAC` reads for 6 bytes (`AA-BB-CC-00-00-01`, `aa:bb:cc:00:00:01`). The helper always sends the lower-case, colon-separated form, and the app should store that form.
+- **IP address**: an IPv4 or IPv6 address as text.
+- **Speed cap**: `{"down_kbps": 5000, "up_kbps": 2000}`, in kilobits per second. Both must be positive.
+
+## Startup
+
+When the helper starts, it blocks every Device. Until the first `sync`:
+
+- `allow` and `set_speed_cap` fail with `not_synced`;
+- `block`, `lookup_mac` and `health` work.
+
+So after a reboot or power loss nobody gets online until the app has decided who has time left and sent `sync`. The app sends `sync` every time it connects, because the helper may have restarted.
+
+## Requests
+
+| Method | Params | Result | Errors |
+| --- | --- | --- | --- |
+| `health` | none | `{"backend": "simulator", "synced": false}` | |
+| `sync` | `{"devices": [{"mac", "ip", "speed_cap"}, …]}` | none | `bad_request` |
+| `allow` | `{"mac", "ip", "speed_cap"}` | none | `bad_request`, `not_synced` |
+| `block` | `{"mac"}` | none | `bad_request` |
+| `set_speed_cap` | `{"mac", "speed_cap"}` | none | `bad_request`, `not_synced`, `not_allowed` |
+| `lookup_mac` | `{"ip"}` | `{"mac"}` | `bad_request`, `unknown_ip` |
+
+- **`health`**: `backend` names the backend the helper drives. `synced` is true once the first `sync` has arrived.
+- **`sync`**: replaces the whole allow list. The listed Devices are allowed with their speed caps, and every other Device is blocked. An empty list blocks everyone. If one Device in the list is invalid, nothing changes.
+- **`allow`**: lets one Device through with its speed cap. Allowing a Device that is already allowed replaces its IP address and speed cap.
+- **`block`**: cuts one Device off. Blocking a Device that is already blocked succeeds.
+- **`set_speed_cap`**: changes the speed cap of an allowed Device. A blocked Device has no speed cap, so this fails with `not_allowed`. Use `allow` with the cap instead.
+- **`lookup_mac`**: finds the MAC address of the Device that holds an IP address, from the DHCP leases or the ARP table. An IP address no Device holds fails with `unknown_ip`.
+
+## Events
+
+| Event | Data | When |
+| --- | --- | --- |
+| `device_online` | `{"mac", "ip"}` | A Device connects to the Hotspot Network. |
+| `device_offline` | `{"mac"}` | A Device leaves the Hotspot Network. |
+
+The helper does not replay events. An app that was not connected when an event happened does not get it.
+
+## Error codes
+
+| Code | Meaning |
+| --- | --- |
+| `bad_request` | The line is not JSON, `params` is missing, or a value is invalid. The message says which. |
+| `unknown_method` | The helper does not know the method. |
+| `not_synced` | The request would open the firewall before the first `sync`. |
+| `not_allowed` | `set_speed_cap` on a blocked Device. |
+| `unknown_ip` | `lookup_mac` found no Device for the IP address. |
+| `backend_failed` | The firewall, traffic control or leases could not be changed or read. The message has the cause. The app should treat the change as not made and retry, or send `sync`. |
+
+## Still to come
+
+Later tickets add these to the contract: the `set_inhibit` request, and the `coin` and `mac_conflict` events.
