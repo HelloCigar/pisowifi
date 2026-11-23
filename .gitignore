@@ -28,3 +28,4 @@ yarn-error.log
 .flow/lenses/
 .claude/skills/flow-*
 .claude/agents/flow-*
+.claude/skills/nuxt-ui/
