@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/vue3'
 import type { Member } from '~/types/dashboard'
 import DashboardLayout from '~/layouts/dashboard.vue'
 import SettingsLayout from '~/layouts/settings.vue'
-import SettingsMembersList from '~/components/settings/settings_members_list.vue'
+import SettingsMembersList from '~/components/templates/settings/settings_members_list.vue'
 
 defineOptions({ layout: [DashboardLayout, SettingsLayout] })
 

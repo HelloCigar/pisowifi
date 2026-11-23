@@ -76,7 +76,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
     {
       label: 'Settings',
       icon: 'i-lucide-settings',
-      to: urlFor('settings.general'),
+      to: urlFor('templates.settings_general'),
     },
   ],
   [

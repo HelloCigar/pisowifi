@@ -7,8 +7,11 @@
     "@adonisjs/auth",
     "@adonisjs/core",
     "@adonisjs/inertia",
+    "@adonisjs/limiter",
     "@adonisjs/lucid",
     "@adonisjs/session",
+    "@adonisjs/transmit",
+    "@outloud/adonis-scheduler",
     "@vinejs/vine",
     "edge.js"
   ],

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { randomInt } from '~/utils'
+import { urlFor } from '~/client'
 import type { Period, Range, Stat } from '~/types/dashboard'
 
 const props = defineProps<{
@@ -80,7 +81,7 @@ watch(
       :key="index"
       :icon="stat.icon"
       :title="stat.title"
-      to="/customers"
+      :to="urlFor('templates.table.index')"
       variant="subtle"
       :ui="{
         container: 'gap-y-1.5',

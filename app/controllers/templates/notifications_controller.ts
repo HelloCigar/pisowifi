@@ -1,4 +1,4 @@
-import { getNotifications } from '#services/demo/notifications'
+import DemoNotifications from '#services/demo/notifications'
 
 export default class NotificationsController {
   /**
@@ -6,6 +6,6 @@ export default class NotificationsController {
    * part of the persistent dashboard layout rather than a page.
    */
   async index() {
-    return getNotifications()
+    return new DemoNotifications().all()
   }
 }

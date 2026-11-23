@@ -4,8 +4,8 @@ import { Head } from '@inertiajs/vue3'
 import { useBreakpoints, breakpointsTailwind } from '@vueuse/core'
 import type { Mail } from '~/types/dashboard'
 import DashboardLayout from '~/layouts/dashboard.vue'
-import InboxMail from '~/components/inbox/inbox_mail.vue'
-import InboxList from '~/components/inbox/inbox_list.vue'
+import ListDetailMail from '~/components/templates/list_detail/list_detail_mail.vue'
+import ListDetailList from '~/components/templates/list_detail/list_detail_list.vue'
 
 defineOptions({ layout: DashboardLayout })
 
@@ -75,17 +75,17 @@ const isMobile = breakpoints.smaller('lg')
       </template>
     </UDashboardNavbar>
 
-    <InboxList v-model="selectedMail" :mails="filteredMails" />
+    <ListDetailList v-model="selectedMail" :mails="filteredMails" />
   </UDashboardPanel>
 
-  <InboxMail v-if="selectedMail" :mail="selectedMail" @close="selectedMail = null" />
+  <ListDetailMail v-if="selectedMail" :mail="selectedMail" @close="selectedMail = null" />
   <div v-else class="hidden lg:flex flex-1 items-center justify-center">
     <UIcon name="i-lucide-inbox" class="size-32 text-dimmed" />
   </div>
 
   <USlideover v-if="isMobile" v-model:open="isMailPanelOpen">
     <template #content>
-      <InboxMail v-if="selectedMail" :mail="selectedMail" @close="selectedMail = null" />
+      <ListDetailMail v-if="selectedMail" :mail="selectedMail" @close="selectedMail = null" />
     </template>
   </USlideover>
 </template>

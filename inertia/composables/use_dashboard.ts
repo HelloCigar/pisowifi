@@ -9,10 +9,10 @@ function dashboardState() {
   const isNotificationsSlideoverOpen = ref(false)
 
   defineShortcuts({
-    'g-h': () => router.visit({ route: 'dashboard' }),
-    'g-i': () => router.visit({ route: 'inbox' }),
-    'g-c': () => router.visit({ route: 'customers' }),
-    'g-s': () => router.visit({ route: 'settings.general' }),
+    'g-h': () => router.visit({ route: 'templates.stats' }),
+    'g-i': () => router.visit({ route: 'templates.list_detail.index' }),
+    'g-c': () => router.visit({ route: 'templates.table.index' }),
+    'g-s': () => router.visit({ route: 'templates.settings_general' }),
     'n': () => (isNotificationsSlideoverOpen.value = !isNotificationsSlideoverOpen.value),
   })
 

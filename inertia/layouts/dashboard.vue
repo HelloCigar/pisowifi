@@ -13,57 +13,57 @@ function close() {
 }
 
 /**
- * Sidebar navigation. Add an entry here for every new area of your app.
+ * Sidebar navigation between the layout templates (see docs/templates.md).
  * URLs are generated from named AdonisJS routes, so renaming a route
  * path never breaks the sidebar.
  */
 const links = [
   [
     {
-      label: 'Home',
-      icon: 'i-lucide-house',
-      to: urlFor('dashboard'),
+      label: 'Stats',
+      icon: 'i-lucide-chart-column',
+      to: urlFor('templates.stats'),
       onSelect: close,
     },
     {
-      label: 'Inbox',
-      icon: 'i-lucide-inbox',
-      to: urlFor('inbox'),
+      label: 'List and detail',
+      icon: 'i-lucide-panels-top-left',
+      to: urlFor('templates.list_detail.index'),
       badge: '4',
       onSelect: close,
     },
     {
-      label: 'Customers',
-      icon: 'i-lucide-users',
-      to: urlFor('customers'),
+      label: 'Table',
+      icon: 'i-lucide-table',
+      to: urlFor('templates.table.index'),
       onSelect: close,
     },
     {
       label: 'Settings',
-      to: urlFor('settings.general'),
+      to: urlFor('templates.settings_general'),
       icon: 'i-lucide-settings',
       defaultOpen: true,
       type: 'trigger',
       children: [
         {
           label: 'General',
-          to: urlFor('settings.general'),
+          to: urlFor('templates.settings_general'),
           exact: true,
           onSelect: close,
         },
         {
           label: 'Members',
-          to: urlFor('settings.members'),
+          to: urlFor('templates.settings_members.index'),
           onSelect: close,
         },
         {
           label: 'Notifications',
-          to: urlFor('settings.notifications'),
+          to: urlFor('templates.settings_notifications'),
           onSelect: close,
         },
         {
           label: 'Security',
-          to: urlFor('settings.security'),
+          to: urlFor('templates.settings_security'),
           onSelect: close,
         },
       ],

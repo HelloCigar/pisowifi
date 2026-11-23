@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
-import { Link } from '@adonisjs/inertia/vue'
 import type { AuthFormField } from '@nuxt/ui'
 import AuthLayout from '~/layouts/auth.vue'
 import AuthForm from '~/components/auth_form.vue'
@@ -37,10 +36,5 @@ const fields: AuthFormField[] = [
     title="Welcome back"
     :submit="{ label: 'Sign in' }"
     :reset-on-error="['password']"
-  >
-    <template #description>
-      Don't have an account?
-      <Link route="new_account.create" class="text-primary font-medium">Sign up</Link>.
-    </template>
-  </AuthForm>
+  />
 </template>

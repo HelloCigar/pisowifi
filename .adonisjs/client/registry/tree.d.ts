@@ -3,23 +3,32 @@ import type { routes } from './index.ts'
 
 export interface ApiDefinition {
   home: typeof routes['home']
-  newAccount: {
-    create: typeof routes['new_account.create']
-    store: typeof routes['new_account.store']
-  }
   session: {
     create: typeof routes['session.create']
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
   }
   dashboard: typeof routes['dashboard']
-  inbox: typeof routes['inbox']
-  customers: typeof routes['customers']
-  notifications: typeof routes['notifications']
-  settings: {
-    general: typeof routes['settings.general']
-    members: typeof routes['settings.members']
-    notifications: typeof routes['settings.notifications']
-    security: typeof routes['settings.security']
+  templates: {
+    stats: typeof routes['templates.stats']
+    table: {
+      index: typeof routes['templates.table.index']
+    }
+    listDetail: {
+      index: typeof routes['templates.list_detail.index']
+    }
+    notifications: {
+      index: typeof routes['templates.notifications.index']
+    }
+    signup: {
+      create: typeof routes['templates.signup.create']
+      store: typeof routes['templates.signup.store']
+    }
+    settingsGeneral: typeof routes['templates.settings_general']
+    settingsMembers: {
+      index: typeof routes['templates.settings_members.index']
+    }
+    settingsNotifications: typeof routes['templates.settings_notifications']
+    settingsSecurity: typeof routes['templates.settings_security']
   }
 }

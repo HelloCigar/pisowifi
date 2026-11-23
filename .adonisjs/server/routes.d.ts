@@ -5,50 +5,53 @@ type ParamValue = string | number | bigint | boolean
 export type ScannedRoutes = {
   ALL: {
     'home': { paramsTuple?: []; params?: {} }
-    'new_account.create': { paramsTuple?: []; params?: {} }
-    'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
     'dashboard': { paramsTuple?: []; params?: {} }
-    'inbox': { paramsTuple?: []; params?: {} }
-    'customers': { paramsTuple?: []; params?: {} }
-    'notifications': { paramsTuple?: []; params?: {} }
-    'settings.general': { paramsTuple?: []; params?: {} }
-    'settings.members': { paramsTuple?: []; params?: {} }
-    'settings.notifications': { paramsTuple?: []; params?: {} }
-    'settings.security': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
+    'templates.stats': { paramsTuple?: []; params?: {} }
+    'templates.table.index': { paramsTuple?: []; params?: {} }
+    'templates.list_detail.index': { paramsTuple?: []; params?: {} }
+    'templates.notifications.index': { paramsTuple?: []; params?: {} }
+    'templates.signup.create': { paramsTuple?: []; params?: {} }
+    'templates.signup.store': { paramsTuple?: []; params?: {} }
+    'templates.settings_general': { paramsTuple?: []; params?: {} }
+    'templates.settings_members.index': { paramsTuple?: []; params?: {} }
+    'templates.settings_notifications': { paramsTuple?: []; params?: {} }
+    'templates.settings_security': { paramsTuple?: []; params?: {} }
   }
   GET: {
     'home': { paramsTuple?: []; params?: {} }
-    'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'dashboard': { paramsTuple?: []; params?: {} }
-    'inbox': { paramsTuple?: []; params?: {} }
-    'customers': { paramsTuple?: []; params?: {} }
-    'notifications': { paramsTuple?: []; params?: {} }
-    'settings.general': { paramsTuple?: []; params?: {} }
-    'settings.members': { paramsTuple?: []; params?: {} }
-    'settings.notifications': { paramsTuple?: []; params?: {} }
-    'settings.security': { paramsTuple?: []; params?: {} }
+    'templates.stats': { paramsTuple?: []; params?: {} }
+    'templates.table.index': { paramsTuple?: []; params?: {} }
+    'templates.list_detail.index': { paramsTuple?: []; params?: {} }
+    'templates.notifications.index': { paramsTuple?: []; params?: {} }
+    'templates.signup.create': { paramsTuple?: []; params?: {} }
+    'templates.settings_general': { paramsTuple?: []; params?: {} }
+    'templates.settings_members.index': { paramsTuple?: []; params?: {} }
+    'templates.settings_notifications': { paramsTuple?: []; params?: {} }
+    'templates.settings_security': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
     'home': { paramsTuple?: []; params?: {} }
-    'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'dashboard': { paramsTuple?: []; params?: {} }
-    'inbox': { paramsTuple?: []; params?: {} }
-    'customers': { paramsTuple?: []; params?: {} }
-    'notifications': { paramsTuple?: []; params?: {} }
-    'settings.general': { paramsTuple?: []; params?: {} }
-    'settings.members': { paramsTuple?: []; params?: {} }
-    'settings.notifications': { paramsTuple?: []; params?: {} }
-    'settings.security': { paramsTuple?: []; params?: {} }
+    'templates.stats': { paramsTuple?: []; params?: {} }
+    'templates.table.index': { paramsTuple?: []; params?: {} }
+    'templates.list_detail.index': { paramsTuple?: []; params?: {} }
+    'templates.notifications.index': { paramsTuple?: []; params?: {} }
+    'templates.signup.create': { paramsTuple?: []; params?: {} }
+    'templates.settings_general': { paramsTuple?: []; params?: {} }
+    'templates.settings_members.index': { paramsTuple?: []; params?: {} }
+    'templates.settings_notifications': { paramsTuple?: []; params?: {} }
+    'templates.settings_security': { paramsTuple?: []; params?: {} }
   }
   POST: {
-    'new_account.store': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
+    'templates.signup.store': { paramsTuple?: []; params?: {} }
   }
 }
 declare module '@adonisjs/core/types/http' {
