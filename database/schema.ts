@@ -7,6 +7,30 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class DeviceSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'id',
+    'lastIpAddress',
+    'lastSeenAt',
+    'macAddress',
+    'updatedAt',
+  ] as const
+  $columns = DeviceSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare lastIpAddress: string
+  @column.dateTime()
+  declare lastSeenAt: DateTime
+  @column()
+  declare macAddress: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
 export class RateLimitSchema extends BaseModel {
   static $columns = ['expire', 'key', 'points'] as const
   $columns = RateLimitSchema.$columns

@@ -14,11 +14,13 @@ Copy a template's page, components and layout, then replace the demo data with r
 | `settings_notifications` | `/_templates/settings/notifications` | Settings form of on/off switches grouped in sections | `inertia/pages/templates/settings_notifications.vue` |
 | `settings_security` | `/_templates/settings/security` | Settings form for a password change, and an account-deletion section | `inertia/pages/templates/settings_security.vue` |
 | `signup` | `/_templates/signup` | Auth form with several fields and server-side validation | `inertia/pages/templates/signup.vue`, `app/controllers/templates/signup_controller.ts` |
+| `portal` | `/` (the real portal) | Mobile-first Customer layout: one narrow column, a header with the Machine's name and the Filipino/English switch, and cards built from Nuxt UI's `UPageCard` | `inertia/layouts/portal.vue`, `inertia/pages/portal/show.vue`, `inertia/composables/use_portal_text.ts` |
 
 ## Shared pieces
 
 - **Layouts.** `inertia/layouts/dashboard.vue` is the sidebar shell, with search, a user menu and a notifications slideover. Its sidebar links between the templates. `inertia/layouts/settings.vue` is the settings panel with tabs. Both are used only by templates.
 - **Demo data.** `app/services/demo/` holds the demo records, and `types/templates.ts` their shapes. `/_templates/notifications` serves the slideover's notifications as JSON.
+- **Portal.** `inertia/layouts/portal.vue` is the layout of every Customer-facing page. Unlike the starter's templates it is a real page, not demo data, and it was built for this app because the starter had no portal layout. Put a portal page's words in `inertia/composables/use_portal_text.ts`, in Filipino and English.
 - **Auth.** `inertia/layouts/auth.vue` and `inertia/pages/auth/login.vue` are not templates. They are the base of the Operator login.
 
 ## Signup

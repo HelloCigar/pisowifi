@@ -6,6 +6,11 @@
 //
 //	go run ./cmd/pisowifi-helper -backend simulator
 //
+// On a Windows PC, Node cannot reach a Unix socket, so listen on loopback
+// TCP instead and set the app's HELPER_ADDRESS to tcp://127.0.0.1:7377:
+//
+//	go run ./cmd/pisowifi-helper -backend simulator -tcp 127.0.0.1:7377
+//
 // On the Machine it runs as root, and -socket-group lets the app's group
 // connect:
 //
@@ -31,6 +36,7 @@ func main() {
 	backendName := flag.String("backend", "simulator", "backend to drive: simulator")
 	socket := flag.String("socket", filepath.Join(os.TempDir(), "pisowifi-helper.sock"), "path of the Unix socket the app connects to")
 	socketGroup := flag.String("socket-group", "", "group that may connect to the socket; the socket gets this group and mode 0660 (Linux)")
+	tcp := flag.String("tcp", "", "listen on this loopback TCP address instead of the socket, for the simulator on a Windows PC")
 	flag.Parse()
 
 	if *backendName != "simulator" {
@@ -38,6 +44,16 @@ func main() {
 		os.Exit(2)
 	}
 	sim := simulator.New(os.Stderr)
+
+	if *tcp != "" {
+		srv, err := server.ListenTCP(*tcp, sim)
+		if err != nil {
+			log.Fatalf("listen on %s: %v", *tcp, err)
+		}
+		log.Printf("helper listening on tcp://%s with the %s backend", srv.Addr(), sim.Name())
+		run(srv, sim)
+		return
+	}
 
 	srv, err := server.Listen(*socket, sim)
 	if err != nil {
@@ -50,7 +66,13 @@ func main() {
 		}
 	}
 	log.Printf("helper listening on %s with the %s backend", *socket, sim.Name())
+	run(srv, sim)
+	os.Remove(*socket)
+}
 
+// run serves the app and the simulator's console until the helper is told
+// to stop.
+func run(srv *server.Server, sim *simulator.Simulator) {
 	go func() {
 		if err := srv.Serve(); err != nil {
 			log.Fatalf("serve: %v", err)
@@ -62,7 +84,6 @@ func main() {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	<-stop
 	srv.Close()
-	os.Remove(*socket)
 }
 
 // grantGroup lets the members of group connect to the socket and nobody else
