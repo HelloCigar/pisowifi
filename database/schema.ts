@@ -6,6 +6,7 @@
 
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
+import type { MachineSettings } from '#types/settings'
 
 export class DeviceSchema extends BaseModel {
   static $columns = [
@@ -40,6 +41,34 @@ export class RateLimitSchema extends BaseModel {
   declare key: string
   @column()
   declare points: number
+}
+
+export class RateTierSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'minutes', 'priceCentavos', 'updatedAt'] as const
+  $columns = RateTierSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare minutes: number
+  @column()
+  declare priceCentavos: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class SettingSchema extends BaseModel {
+  static $columns = ['createdAt', 'data', 'id', 'updatedAt'] as const
+  $columns = SettingSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare data: MachineSettings
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 }
 
 export class UserSchema extends BaseModel {

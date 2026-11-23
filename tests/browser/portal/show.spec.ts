@@ -1,9 +1,11 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import { finishSetup } from '#tests/helpers/machine'
 import { useFakeHelperClient } from '#tests/helpers/helper_client'
 
 test.group('Portal', (group) => {
   group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => finishSetup())
 
   test('tells a Device with no Credit that it has none yet', async ({ visit, route }) => {
     const helper = useFakeHelperClient()

@@ -5,7 +5,7 @@ import testUtils from '@adonisjs/core/services/test_utils'
 test.group('Login page', (group) => {
   group.each.setup(() => testUtils.db().truncate())
 
-  test('sends a signed-in Operator to the dashboard, not the portal', async ({
+  test('sends a signed-in Operator to the admin panel, not the portal', async ({
     visit,
     route,
     browserContext,
@@ -13,8 +13,8 @@ test.group('Login page', (group) => {
     const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
     await browserContext.loginAs(operator)
 
-    const page = await visit(route('session.create'))
+    const page = await visit(route('admin.session.create'))
 
-    await page.assertPath(route('dashboard'))
+    await page.assertPath(route('admin.dashboard'))
   })
 })

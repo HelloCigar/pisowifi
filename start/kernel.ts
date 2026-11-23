@@ -34,4 +34,5 @@ export const middleware = router.named({
   guest: () => import('#middleware/guest_middleware'),
   auth: () => import('#middleware/auth_middleware'),
   device: () => import('#middleware/identify_device_middleware'),
+  requireSetup: () => import('#middleware/require_setup_middleware'),
 })

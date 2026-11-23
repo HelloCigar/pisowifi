@@ -1,4 +1,4 @@
- 
+/* eslint-disable prettier/prettier */
 import type { AdonisEndpoint } from '@tuyau/core/types'
 import type { Registry } from './schema.d.ts'
 import type { ApiDefinition } from './tree.d.ts'
@@ -20,29 +20,77 @@ const routes = {
     tokens: [[0,"language"]],
     types: placeholder as Registry['portal_language.update']['types'],
   },
-  'session.create': {
+  'setup.create': {
     methods: ["GET","HEAD"],
-    pattern: '/login',
-    tokens: [[0,"login"]],
-    types: placeholder as Registry['session.create']['types'],
+    pattern: '/setup',
+    tokens: [[0,"setup"]],
+    types: placeholder as Registry['setup.create']['types'],
   },
-  'session.store': {
+  'setup.store': {
     methods: ["POST"],
-    pattern: '/login',
-    tokens: [[0,"login"]],
-    types: placeholder as Registry['session.store']['types'],
+    pattern: '/setup',
+    tokens: [[0,"setup"]],
+    types: placeholder as Registry['setup.store']['types'],
   },
-  'dashboard': {
+  'admin.session.create': {
     methods: ["GET","HEAD"],
-    pattern: '/dashboard',
-    tokens: [[0,"dashboard"]],
-    types: placeholder as Registry['dashboard']['types'],
+    pattern: '/admin/login',
+    tokens: [[0,"admin"],[0,"login"]],
+    types: placeholder as Registry['admin.session.create']['types'],
   },
-  'session.destroy': {
+  'admin.session.store': {
     methods: ["POST"],
-    pattern: '/logout',
-    tokens: [[0,"logout"]],
-    types: placeholder as Registry['session.destroy']['types'],
+    pattern: '/admin/login',
+    tokens: [[0,"admin"],[0,"login"]],
+    types: placeholder as Registry['admin.session.store']['types'],
+  },
+  'admin.dashboard': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin',
+    tokens: [[0,"admin"]],
+    types: placeholder as Registry['admin.dashboard']['types'],
+  },
+  'admin.session.destroy': {
+    methods: ["POST"],
+    pattern: '/admin/logout',
+    tokens: [[0,"admin"],[0,"logout"]],
+    types: placeholder as Registry['admin.session.destroy']['types'],
+  },
+  'admin.rate_tiers.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/rate_tiers',
+    tokens: [[0,"admin"],[0,"rate_tiers"]],
+    types: placeholder as Registry['admin.rate_tiers.index']['types'],
+  },
+  'admin.rate_tiers.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/rate_tiers/create',
+    tokens: [[0,"admin"],[0,"rate_tiers"],[0,"create"]],
+    types: placeholder as Registry['admin.rate_tiers.create']['types'],
+  },
+  'admin.rate_tiers.store': {
+    methods: ["POST"],
+    pattern: '/admin/rate_tiers',
+    tokens: [[0,"admin"],[0,"rate_tiers"]],
+    types: placeholder as Registry['admin.rate_tiers.store']['types'],
+  },
+  'admin.rate_tiers.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/rate_tiers/:id/edit',
+    tokens: [[0,"admin"],[0,"rate_tiers"],[1,"id"],[0,"edit"]],
+    types: placeholder as Registry['admin.rate_tiers.edit']['types'],
+  },
+  'admin.rate_tiers.update': {
+    methods: ["PUT","PATCH"],
+    pattern: '/admin/rate_tiers/:id',
+    tokens: [[0,"admin"],[0,"rate_tiers"],[1,"id"]],
+    types: placeholder as Registry['admin.rate_tiers.update']['types'],
+  },
+  'admin.rate_tiers.destroy': {
+    methods: ["DELETE"],
+    pattern: '/admin/rate_tiers/:id',
+    tokens: [[0,"admin"],[0,"rate_tiers"],[1,"id"]],
+    types: placeholder as Registry['admin.rate_tiers.destroy']['types'],
   },
   'templates.stats': {
     methods: ["GET","HEAD"],

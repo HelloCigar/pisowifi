@@ -15,22 +15,45 @@ import router from '@adonisjs/core/services/router'
 /**
  * The portal: the Customer-facing pages, at the root of the Hotspot Network.
  */
-router.get('/', [controllers.ShowPortal]).as('portal').use(middleware.device())
+router
+  .get('/', [controllers.ShowPortal])
+  .as('portal')
+  .use([middleware.requireSetup(), middleware.device()])
 router.put('language', [controllers.PortalLanguage, 'update']).as('portal_language.update')
 
-router
-  .group(() => {
-    router.get('login', [controllers.Session, 'create'])
-    router.post('login', [controllers.Session, 'store'])
-  })
-  .use(middleware.guest())
+/**
+ * The setup wizard a newly installed Machine boots into. It closes for good
+ * once an Operator exists.
+ */
+router.get('setup', [controllers.Setup, 'create'])
+router.post('setup', [controllers.Setup, 'store'])
 
+/**
+ * The admin panel: the Operator-facing pages. Every page but the login
+ * needs a signed-in Operator.
+ */
 router
   .group(() => {
-    router.on('dashboard').renderInertia('dashboard', {}).as('dashboard')
-    router.post('logout', [controllers.Session, 'destroy'])
+    router
+      .group(() => {
+        router.get('login', [controllers.Session, 'create'])
+        router.post('login', [controllers.Session, 'store'])
+      })
+      .use(middleware.guest())
+
+    router
+      .group(() => {
+        router.on('/').renderInertia('admin/dashboard', {}).as('dashboard')
+        router.post('logout', [controllers.Session, 'destroy'])
+        router
+          .resource('rate_tiers', controllers.RateTiers)
+          .except(['show'])
+          .where('id', router.matchers.number())
+      })
+      .use(middleware.auth())
   })
-  .use(middleware.auth())
+  .prefix('admin')
+  .as('admin')
 
 /**
  * Layout templates from the starter kit, kept as working pages to copy

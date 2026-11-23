@@ -30,7 +30,7 @@ const fields: AuthFormField[] = [
   <Head title="Sign in" />
 
   <AuthForm
-    route="session.store"
+    route="admin.session.store"
     :fields="fields"
     icon="i-lucide-lock"
     title="Welcome back"

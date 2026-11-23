@@ -53,7 +53,7 @@ const user = computed(() => {
 })
 
 function logout() {
-  router.post({ route: 'session.destroy' })
+  router.post({ route: 'admin.session.destroy' })
 }
 
 const items = computed<DropdownMenuItem[][]>(() => [

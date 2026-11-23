@@ -13,6 +13,8 @@ const portalText = {
     yourDevice: 'Iyong Device',
     unknownDeviceTitle: 'Hindi makilala ang iyong Device',
     unknownDeviceBody: 'Kumonekta sa Wi-Fi ng Machine na ito, saka buksan muli ang pahinang ito.',
+    notReadyTitle: 'Hindi pa handa ang Machine',
+    notReadyBody: 'Hindi pa ito naise-set up ng Operator. Subukan muli mamaya.',
   },
   en: {
     switchLanguage: 'Filipino',
@@ -21,6 +23,8 @@ const portalText = {
     yourDevice: 'Your Device',
     unknownDeviceTitle: 'We cannot recognize your Device',
     unknownDeviceBody: "Connect to this Machine's Wi-Fi, then open this page again.",
+    notReadyTitle: "This Machine isn't ready yet",
+    notReadyBody: 'Its Operator has not set it up yet. Please try again later.',
   },
 } as const
 
