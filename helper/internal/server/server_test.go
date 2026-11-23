@@ -13,17 +13,22 @@ import (
 	"github.com/HelloCigar/pisowifi/helper/internal/simulator"
 )
 
-// client is the app's side of the socket, written from the protocol document.
-type client struct {
+// fakeApp is the app's side of the socket, written from the protocol document.
+type fakeApp struct {
 	t      *testing.T
 	conn   net.Conn
 	lines  chan map[string]any
 	nextID int
 }
 
-func startHelper(t *testing.T) (*simulator.Simulator, *client) {
+func startHelper(t *testing.T) (*simulator.Simulator, *fakeApp) {
 	t.Helper()
 	sim := simulator.New(nil)
+	return sim, startHelperWith(t, sim)
+}
+
+func startHelperWith(t *testing.T, sim *simulator.Simulator) *fakeApp {
+	t.Helper()
 	// t.TempDir() is too long for a Unix socket path (108 bytes) on Windows.
 	dir, err := os.MkdirTemp("", "ph")
 	if err != nil {
@@ -43,10 +48,10 @@ func startHelper(t *testing.T) (*simulator.Simulator, *client) {
 	// A reply proves the helper has taken the connection, so no event the
 	// test triggers afterwards can be missed.
 	assertOK(t, app.call("health", nil))
-	return sim, app
+	return app
 }
 
-func dial(t *testing.T, socket string) *client {
+func dial(t *testing.T, socket string) *fakeApp {
 	t.Helper()
 	conn, err := net.Dial("unix", socket)
 	if err != nil {
@@ -54,7 +59,7 @@ func dial(t *testing.T, socket string) *client {
 	}
 	t.Cleanup(func() { conn.Close() })
 
-	c := &client{t: t, conn: conn, lines: make(chan map[string]any, 64)}
+	c := &fakeApp{t: t, conn: conn, lines: make(chan map[string]any, 64)}
 	go func() {
 		scanner := bufio.NewScanner(conn)
 		for scanner.Scan() {
@@ -72,7 +77,7 @@ func dial(t *testing.T, socket string) *client {
 
 // call sends one request and waits for the reply with the same id.
 // Events that arrive in between are ignored.
-func (c *client) call(method string, params any) map[string]any {
+func (c *fakeApp) call(method string, params any) map[string]any {
 	c.t.Helper()
 	c.nextID++
 	id := c.nextID
@@ -94,7 +99,7 @@ func (c *client) call(method string, params any) map[string]any {
 }
 
 // event waits for the next pushed event.
-func (c *client) event() map[string]any {
+func (c *fakeApp) event() map[string]any {
 	c.t.Helper()
 	for {
 		msg := c.next()
@@ -104,7 +109,7 @@ func (c *client) event() map[string]any {
 	}
 }
 
-func (c *client) next() map[string]any {
+func (c *fakeApp) next() map[string]any {
 	c.t.Helper()
 	select {
 	case msg, ok := <-c.lines:
@@ -163,6 +168,28 @@ func TestEveryDeviceIsBlockedUntilTheFirstSync(t *testing.T) {
 	}
 }
 
+func TestStartingTheHelperBlocksDevicesLeftAllowedBefore(t *testing.T) {
+	sim := simulator.New(nil)
+	must(t, sim.Allow(server.Device{MAC: phoneMAC, IP: "10.0.0.11", SpeedCap: server.SpeedCap{DownKbps: 5000, UpKbps: 2000}}))
+
+	startHelperWith(t, sim)
+
+	assertBlocked(t, sim, phoneMAC)
+}
+
+func TestSyncWithoutADeviceListIsRejected(t *testing.T) {
+	sim, app := startHelper(t)
+
+	assertError(t, app.call("sync", map[string]any{}), "bad_request")
+
+	if assertOK(t, app.call("health", nil))["synced"] != false {
+		t.Fatal("a rejected sync must not count as the first sync")
+	}
+	if len(sim.AllowedDevices()) != 0 {
+		t.Fatalf("expected nothing allowed, got %v", sim.AllowedDevices())
+	}
+}
+
 func TestSyncAllowsExactlyTheListedDevices(t *testing.T) {
 	sim, app := startHelper(t)
 
@@ -191,7 +218,7 @@ func TestALaterSyncReplacesTheAllowedDevices(t *testing.T) {
 	assertAllowed(t, sim, laptopMAC, "10.0.0.12", 5000, 2000)
 }
 
-func syncNothing(t *testing.T, app *client) {
+func syncNothing(t *testing.T, app *fakeApp) {
 	t.Helper()
 	assertOK(t, app.call("sync", map[string]any{"devices": []any{}}))
 }

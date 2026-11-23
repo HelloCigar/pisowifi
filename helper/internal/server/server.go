@@ -9,8 +9,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"maps"
 	"net"
 	"os"
+	"slices"
 	"sync"
 	"time"
 )
@@ -99,6 +101,7 @@ type Server struct {
 	connsMu sync.Mutex
 	conns   map[*appConn]struct{}
 	done    chan struct{}
+	closing sync.Once
 }
 
 // appConn is one connection from the app. Replies and events share it, so
@@ -116,26 +119,25 @@ func (c *appConn) send(message any) error {
 	return c.encoder.Encode(message)
 }
 
-// writeTimeout drops an app connection that stops reading, so one stuck
-// client cannot hold up events for the others.
+// writeTimeout drops an app connection that stops reading, so a stuck app
+// cannot hold up events for the others.
 const writeTimeout = 5 * time.Second
 
 // maxLine bounds one request line; a sync of every Device fits easily.
 const maxLine = 1 << 20
 
-// Listen removes a stale socket file left by a previous run and listens on
-// path.
+// Listen blocks every Device, removes a stale socket file left by a previous
+// run, and listens on path.
 func Listen(path string, backend Backend) (*Server, error) {
+	// Block every Device until the app's first sync says who has time left.
+	if err := backend.Sync(nil); err != nil {
+		return nil, err
+	}
 	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return nil, err
 	}
 	listener, err := net.Listen("unix", path)
 	if err != nil {
-		return nil, err
-	}
-	// Block every Device until the app's first sync says who has time left.
-	if err := backend.Sync(nil); err != nil {
-		listener.Close()
 		return nil, err
 	}
 	s := &Server{
@@ -166,13 +168,17 @@ func (s *Server) Serve() error {
 // Close stops accepting connections and closes the open ones.
 func (s *Server) Close() error {
 	err := s.listener.Close()
-	close(s.done)
-	s.connsMu.Lock()
-	defer s.connsMu.Unlock()
-	for c := range s.conns {
+	s.closing.Do(func() { close(s.done) })
+	for _, c := range s.openConns() {
 		c.conn.Close()
 	}
 	return err
+}
+
+func (s *Server) openConns() []*appConn {
+	s.connsMu.Lock()
+	defer s.connsMu.Unlock()
+	return slices.Collect(maps.Keys(s.conns))
 }
 
 func (s *Server) pushEvents() {
@@ -181,14 +187,12 @@ func (s *Server) pushEvents() {
 		case <-s.done:
 			return
 		case event := <-s.backend.Events():
-			s.connsMu.Lock()
-			for c := range s.conns {
+			for _, c := range s.openConns() {
 				if err := c.send(event); err != nil {
 					log.Printf("push %s: %v", event.Name, err)
 					c.conn.Close()
 				}
 			}
-			s.connsMu.Unlock()
 		}
 	}
 }
@@ -208,18 +212,22 @@ func (s *Server) handle(conn net.Conn) {
 	scanner := bufio.NewScanner(conn)
 	scanner.Buffer(make([]byte, 0, 64*1024), maxLine)
 	for scanner.Scan() {
-		var req request
-		var res reply
-		if err := json.Unmarshal(scanner.Bytes(), &req); err != nil {
-			res = reply{ID: json.RawMessage("null"), Error: &Error{Code: "bad_request", Message: "the line is not a JSON request"}}
-		} else {
-			res = s.dispatch(req)
-		}
-		if err := c.send(res); err != nil {
+		if err := c.send(s.answer(scanner.Bytes())); err != nil {
 			log.Printf("write reply: %v", err)
 			return
 		}
 	}
+	if errors.Is(scanner.Err(), bufio.ErrTooLong) {
+		c.send(failure(request{}, "bad_request", "the line is longer than 1 MiB"))
+	}
+}
+
+func (s *Server) answer(line []byte) reply {
+	var req request
+	if err := json.Unmarshal(line, &req); err != nil {
+		return failure(request{}, "bad_request", "the line is not a JSON request")
+	}
+	return s.dispatch(req)
 }
 
 func (s *Server) dispatch(req request) reply {
@@ -249,6 +257,9 @@ func (s *Server) sync(req request) reply {
 	}
 	if err := decodeParams(req, &params); err != nil {
 		return failure(req, "bad_request", err.Error())
+	}
+	if params.Devices == nil {
+		return failure(req, "bad_request", "devices is required; send [] to block every Device")
 	}
 	for i := range params.Devices {
 		if err := normalizeDevice(&params.Devices[i]); err != nil {
@@ -373,7 +384,7 @@ func notSynced(req request) reply {
 }
 
 func decodeParams(req request, into any) error {
-	if len(req.Params) == 0 {
+	if len(req.Params) == 0 || string(req.Params) == "null" {
 		return errors.New("params are required")
 	}
 	if err := json.Unmarshal(req.Params, into); err != nil {
@@ -427,6 +438,8 @@ func success(req request, result any) reply {
 	return reply{ID: req.ID, OK: true, Result: result}
 }
 
+// failure answers req with an error. A request with no id, or a line that is
+// not a request, gets "id": null.
 func failure(req request, code, message string) reply {
 	return reply{ID: req.ID, Error: &Error{Code: code, Message: message}}
 }

@@ -7,7 +7,7 @@ The Go tests in `internal/server/server_test.go` talk to the real helper over it
 ## Transport
 
 - A local Unix socket. On the Machine it is `/run/pisowifi/helper.sock`. On a development PC the default is `pisowifi-helper.sock` in the temp directory, and `-socket` changes it.
-- Each message is one JSON object on one line, ended by `\n`. Lines are at most 1 MiB.
+- Each message is one JSON object on one line, ended by `\n`. Lines are at most 1 MiB. A longer line gets a `bad_request` reply with `"id": null`, and the helper closes the connection.
 - The app connects. The helper never connects to the app.
 - The app may send several requests without waiting. Replies may arrive between events, so the app matches each reply to its request by `id`.
 
@@ -19,8 +19,8 @@ The Go tests in `internal/server/server_test.go` talk to the real helper over it
 {"id": 7, "method": "allow", "params": {"mac": "aa:bb:cc:00:00:01", "ip": "10.0.0.11", "speed_cap": {"down_kbps": 5000, "up_kbps": 2000}}}
 ```
 
-- `id` is any JSON number or string the app chooses. The helper copies it into the reply.
-- `params` is required for every method except `health`.
+- `id` is a JSON number or string the app chooses, unique among its requests in flight. The helper copies it into the reply as given. A request without `id` gets `"id": null`.
+- `params` is a JSON object, required for every method except `health`. A missing or `null` `params` gets `bad_request`.
 
 **Reply** (helper → app), one per request:
 
@@ -65,7 +65,7 @@ So after a reboot or power loss nobody gets online until the app has decided who
 | `lookup_mac` | `{"ip"}` | `{"mac"}` | `bad_request`, `unknown_ip` |
 
 - **`health`**: `backend` names the backend the helper drives. `synced` is true once the first `sync` has arrived.
-- **`sync`**: replaces the whole allow list. The listed Devices are allowed with their speed caps, and every other Device is blocked. An empty list blocks everyone. If one Device in the list is invalid, nothing changes.
+- **`sync`**: replaces the whole allow list. The listed Devices are allowed with their speed caps, and every other Device is blocked. `devices` is required. An empty list (`[]`) blocks everyone. If `devices` is missing or one Device in it is invalid, nothing changes and it does not count as the first `sync`.
 - **`allow`**: lets one Device through with its speed cap. Allowing a Device that is already allowed replaces its IP address and speed cap.
 - **`block`**: cuts one Device off. Blocking a Device that is already blocked succeeds.
 - **`set_speed_cap`**: changes the speed cap of an allowed Device. A blocked Device has no speed cap, so this fails with `not_allowed`. Use `allow` with the cap instead.

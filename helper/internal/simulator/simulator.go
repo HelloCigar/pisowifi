@@ -159,23 +159,20 @@ func (s *Simulator) Online(mac string) error {
 		return err
 	}
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	d, err := s.device(mac)
-	if err == nil && d.ip == "" {
-		err = fmt.Errorf("Device %s has no IP address; map one first", mac)
-	}
-	if err == nil && d.online {
-		err = fmt.Errorf("Device %s is already online", mac)
-	}
 	if err != nil {
-		s.mu.Unlock()
 		return err
 	}
+	if d.ip == "" {
+		return fmt.Errorf("Device %s has no IP address; map one first", mac)
+	}
+	if d.online {
+		return fmt.Errorf("Device %s is already online", mac)
+	}
 	d.online = true
-	ip := d.ip
-	s.mu.Unlock()
-
-	s.log.Printf("network: Device %s online at %s", mac, ip)
-	s.events <- server.DeviceOnline(mac, ip)
+	s.log.Printf("network: Device %s online at %s", mac, d.ip)
+	s.emit(server.DeviceOnline(mac, d.ip))
 	return nil
 }
 
@@ -188,20 +185,29 @@ func (s *Simulator) Offline(mac string) error {
 		return err
 	}
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	d, err := s.device(mac)
-	if err == nil && !d.online {
-		err = fmt.Errorf("Device %s is already offline", mac)
-	}
 	if err != nil {
-		s.mu.Unlock()
 		return err
 	}
+	if !d.online {
+		return fmt.Errorf("Device %s is already offline", mac)
+	}
 	d.online = false
-	s.mu.Unlock()
-
 	s.log.Printf("network: Device %s offline", mac)
-	s.events <- server.DeviceOffline(mac)
+	s.emit(server.DeviceOffline(mac))
 	return nil
+}
+
+// emit queues an event for the server. Callers hold s.mu, so events leave
+// in the order the changes happened. It never waits: with no server reading,
+// the event is dropped and logged rather than freezing the console.
+func (s *Simulator) emit(event server.Event) {
+	select {
+	case s.events <- event:
+	default:
+		s.log.Printf("event %s dropped: nothing is reading events", event.Name)
+	}
 }
 
 // Events delivers device_online and device_offline as fake Devices come and
