@@ -15,7 +15,7 @@ export default class SessionController {
     return inertia.render('auth/login', {})
   }
 
-  async store({ request, auth, response }: HttpContext) {
+  async store({ request, auth, response, session }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
 
     /**
@@ -39,7 +39,13 @@ export default class SessionController {
     })
 
     if (limitError) {
-      throw limitError
+      // flow-allow limiter.md: the global handler turns a thrown limit into a toast, but the
+      // login shows its refusals under the email field, as it does for a wrong password.
+      const minutes = Math.ceil(limitError.response.availableIn / 60)
+      session.flashInputErrors({
+        email: `Too many attempts. Try again in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}.`,
+      })
+      return response.redirect().back()
     }
 
     await auth.use('web').login(user)
