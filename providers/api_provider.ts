@@ -24,12 +24,20 @@ class ApiSerializer extends BaseSerializer<{
    * @throws Error if metadata doesn't match Lucid's pagination structure
    */
   definePaginationMetaData(metaData: unknown): SimplePaginatorMetaKeys {
-    if (!this.isLucidPaginatorMetaData(metaData)) {
+    /**
+     * The guard of BaseSerializer does not check "pageName", which Lucid
+     * includes in the metadata since v22.5, so it is checked here.
+     */
+    if (
+      !this.isLucidPaginatorMetaData(metaData) ||
+      !('pageName' in metaData) ||
+      typeof metaData.pageName !== 'string'
+    ) {
       throw new Error(
         'Invalid pagination metadata. Expected metadata to contain Lucid pagination keys'
       )
     }
-    return metaData
+    return { ...metaData, pageName: metaData.pageName }
   }
 }
 
