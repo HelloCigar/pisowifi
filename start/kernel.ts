@@ -22,6 +22,7 @@ server.use([
 ])
 
 router.use([
+  () => import('#middleware/redirect_unknown_host_middleware'),
   () => import('@adonisjs/core/bodyparser_middleware'),
   () => import('@adonisjs/session/session_middleware'),
   () => import('@adonisjs/shield/shield_middleware'),
@@ -32,4 +33,5 @@ router.use([
 export const middleware = router.named({
   guest: () => import('#middleware/guest_middleware'),
   auth: () => import('#middleware/auth_middleware'),
+  device: () => import('#middleware/identify_device_middleware'),
 })

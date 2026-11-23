@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+ 
 import type { AdonisEndpoint } from '@tuyau/core/types'
 import type { Registry } from './schema.d.ts'
 import type { ApiDefinition } from './tree.d.ts'
@@ -8,11 +8,17 @@ export type { Route, Path } from './schema.d.ts'
 const placeholder: any = {}
 
 const routes = {
-  'home': {
+  'portal': {
     methods: ["GET","HEAD"],
     pattern: '/',
     tokens: [[0,"/"]],
-    types: placeholder as Registry['home']['types'],
+    types: placeholder as Registry['portal']['types'],
+  },
+  'portal_language.update': {
+    methods: ["PUT"],
+    pattern: '/language',
+    tokens: [[0,"language"]],
+    types: placeholder as Registry['portal_language.update']['types'],
   },
   'session.create': {
     methods: ["GET","HEAD"],
@@ -97,6 +103,12 @@ const routes = {
     pattern: '/_templates/settings/security',
     tokens: [[0,"_templates"],[0,"settings"],[0,"security"]],
     types: placeholder as Registry['templates.settings_security']['types'],
+  },
+  'captive': {
+    methods: ["HEAD","OPTIONS","GET","POST","PUT","PATCH","DELETE"],
+    pattern: '/*',
+    tokens: [[2,"*"]],
+    types: placeholder as Registry['captive']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 

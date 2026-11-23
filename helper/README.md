@@ -13,7 +13,7 @@ cd helper
 go run ./cmd/pisowifi-helper -backend simulator
 ```
 
-It prints the socket path it listens on. Type commands into the console to fake Devices:
+It prints the socket path it listens on. Set the app's `HELPER_ADDRESS` to that path. Type commands into the console to fake Devices:
 
 ```text
 add aa:bb:cc:00:00:01
@@ -22,6 +22,22 @@ online aa:bb:cc:00:00:01
 offline aa:bb:cc:00:00:01
 devices
 firewall
+```
+
+### On Windows
+
+Node cannot reach a Unix socket on Windows, so listen on loopback TCP instead:
+
+```sh
+go run ./cmd/pisowifi-helper -backend simulator -tcp 127.0.0.1:7377
+```
+
+and set `HELPER_ADDRESS=tcp://127.0.0.1:7377` in the app's `.env`. To open the portal as a fake Device from the same PC, run the app with `HOST=127.0.0.1` and lease the fake Device the address your browser connects from:
+
+```text
+add aa:bb:cc:00:00:01
+map aa:bb:cc:00:00:01 127.0.0.1
+online aa:bb:cc:00:00:01
 ```
 
 ## Test

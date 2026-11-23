@@ -13,15 +13,10 @@ import app from '@adonisjs/core/services/app'
 import router from '@adonisjs/core/services/router'
 
 /**
- * Send visitors to the dashboard when logged in, or to the login page otherwise
+ * The portal: the Customer-facing pages, at the root of the Hotspot Network.
  */
-router
-  .get('/', async ({ auth, response }) => {
-    return (await auth.check())
-      ? response.redirect().toRoute('dashboard')
-      : response.redirect().toRoute('session.create')
-  })
-  .as('home')
+router.get('/', [controllers.ShowPortal]).as('portal').use(middleware.device())
+router.put('language', [controllers.PortalLanguage, 'update']).as('portal_language.update')
 
 router
   .group(() => {
@@ -66,3 +61,9 @@ if (!app.inProduction) {
     .prefix('_templates')
     .as('templates')
 }
+
+/**
+ * The captive catch-all, registered last. Any other path, such as an
+ * operating system's connectivity check, is sent to the portal.
+ */
+router.any('*', [controllers.RedirectToPortal]).as('captive')

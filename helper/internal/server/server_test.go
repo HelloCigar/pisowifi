@@ -44,16 +44,16 @@ func startHelperWith(t *testing.T, sim *simulator.Simulator) *fakeApp {
 	go srv.Serve()
 	t.Cleanup(func() { srv.Close() })
 
-	app := dial(t, socket)
+	app := dial(t, "unix", socket)
 	// A reply proves the helper has taken the connection, so no event the
 	// test triggers afterwards can be missed.
 	assertOK(t, app.call("health", nil))
 	return app
 }
 
-func dial(t *testing.T, socket string) *fakeApp {
+func dial(t *testing.T, network, address string) *fakeApp {
 	t.Helper()
-	conn, err := net.Dial("unix", socket)
+	conn, err := net.Dial(network, address)
 	if err != nil {
 		t.Fatalf("dial: %v", err)
 	}
@@ -346,5 +346,25 @@ func assertBlocked(t *testing.T, sim *simulator.Simulator, mac string) {
 	t.Helper()
 	if _, ok := sim.AllowedDevices()[mac]; ok {
 		t.Fatalf("expected %s to be blocked", mac)
+	}
+}
+
+func TestTheHelperServesOnLoopbackTCPForAWindowsPC(t *testing.T) {
+	srv, err := server.ListenTCP("127.0.0.1:0", simulator.New(nil))
+	if err != nil {
+		t.Fatalf("listen: %v", err)
+	}
+	go srv.Serve()
+	t.Cleanup(func() { srv.Close() })
+
+	app := dial(t, "tcp", srv.Addr().String())
+	assertOK(t, app.call("health", nil))
+}
+
+func TestTheHelperRefusesTCPOffLoopback(t *testing.T) {
+	for _, address := range []string{"0.0.0.0:7377", ":7377", "10.0.0.1:7377"} {
+		if _, err := server.ListenTCP(address, simulator.New(nil)); err == nil {
+			t.Errorf("ListenTCP(%q) succeeded; it must refuse an address off loopback", address)
+		}
 	}
 }

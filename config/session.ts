@@ -1,5 +1,4 @@
 import env from '#start/env'
-import app from '@adonisjs/core/services/app'
 import { defineConfig, stores } from '@adonisjs/session'
 
 const sessionConfig = defineConfig({
@@ -41,9 +40,11 @@ const sessionConfig = defineConfig({
     httpOnly: true,
 
     /**
-     * Send cookies only over HTTPS in production.
+     * Send cookies only over HTTPS when the app is served over HTTPS. The
+     * Machine serves the portal and the admin panel over plain HTTP at the
+     * hotspot address, where a secure cookie would never come back.
      */
-    secure: app.inProduction,
+    secure: new URL(env.get('APP_URL')).protocol === 'https:',
 
     /**
      * Cross-site policy for cookie sending.

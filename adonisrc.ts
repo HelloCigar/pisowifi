@@ -63,6 +63,7 @@ export default defineConfig({
     () => import('@outloud/adonis-scheduler/provider'),
     () => import('@adonisjs/limiter/limiter_provider'),
     () => import('@adonisjs/transmit/transmit_provider'),
+    () => import('#providers/helper_provider'),
   ],
 
   /*
@@ -77,6 +78,7 @@ export default defineConfig({
     () => import('#start/routes'),
     () => import('#start/kernel'),
     () => import('#start/validator'),
+    () => import('#start/events'),
   ],
 
   /*

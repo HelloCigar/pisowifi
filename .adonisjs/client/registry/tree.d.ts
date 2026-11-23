@@ -2,7 +2,10 @@
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
-  home: typeof routes['home']
+  portal: typeof routes['portal']
+  portalLanguage: {
+    update: typeof routes['portal_language.update']
+  }
   session: {
     create: typeof routes['session.create']
     store: typeof routes['session.store']
@@ -31,4 +34,5 @@ export interface ApiDefinition {
     settingsNotifications: typeof routes['templates.settings_notifications']
     settingsSecurity: typeof routes['templates.settings_security']
   }
+  captive: typeof routes['captive']
 }

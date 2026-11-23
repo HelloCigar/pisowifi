@@ -16,9 +16,10 @@ const dbConfig = defineConfig({
 
       connection: {
         /**
-         * Database file location.
+         * Database file location. Tests get their own file, because the
+         * suite migrates and truncates it on every run.
          */
-        filename: app.tmpPath('db.sqlite3'),
+        filename: app.tmpPath(app.inTest ? 'test.sqlite3' : 'db.sqlite3'),
       },
 
       /**

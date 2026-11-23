@@ -8,7 +8,7 @@ import type { routes } from './index.ts'
 export type ParamValue = string | number | bigint | boolean
 
 export interface Registry {
-  'home': {
+  'portal': {
     methods: ["GET","HEAD"]
     pattern: '/'
     types: {
@@ -16,9 +16,22 @@ export interface Registry {
       paramsTuple: []
       params: {}
       query: {}
-      response: unknown
-      errorResponse: unknown
-      rawResponse: ExtractRawResponse<unknown>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/show_portal_controller').default['handle']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/show_portal_controller').default['handle']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/show_portal_controller').default['handle']>>>
+    }
+  }
+  'portal_language.update': {
+    methods: ["PUT"]
+    pattern: '/language'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/portal_language').updatePortalLanguageValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/portal_language').updatePortalLanguageValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/portal_language_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/portal_language_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/portal_language_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'session.create': {
@@ -201,6 +214,19 @@ export interface Registry {
       response: unknown
       errorResponse: unknown
       rawResponse: ExtractRawResponse<unknown>
+    }
+  }
+  'captive': {
+    methods: ["HEAD","OPTIONS","GET","POST","PUT","PATCH","DELETE"]
+    pattern: '/*'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { '*': ParamValue[] }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/redirect_to_portal_controller').default['handle']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/redirect_to_portal_controller').default['handle']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/redirect_to_portal_controller').default['handle']>>>
     }
   }
 }

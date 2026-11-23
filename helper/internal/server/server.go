@@ -87,7 +87,8 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// Server accepts app connections on one Unix socket.
+// Server accepts app connections on one Unix socket, or on loopback TCP
+// for the simulator on a Windows PC.
 type Server struct {
 	listener net.Listener
 	backend  Backend
@@ -140,6 +141,31 @@ func Listen(path string, backend Backend) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	return serve(listener, backend), nil
+}
+
+// ListenTCP blocks every Device and listens on a loopback TCP address. It is
+// for the simulator on a Windows PC, where Node cannot reach a Unix socket.
+// It refuses any address off loopback, so no other machine can connect.
+func ListenTCP(address string, backend Backend) (*Server, error) {
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return nil, err
+	}
+	if ip := net.ParseIP(host); ip == nil || !ip.IsLoopback() {
+		return nil, fmt.Errorf("%s is not a loopback address", address)
+	}
+	if err := backend.Sync(nil); err != nil {
+		return nil, err
+	}
+	listener, err := net.Listen("tcp", address)
+	if err != nil {
+		return nil, err
+	}
+	return serve(listener, backend), nil
+}
+
+func serve(listener net.Listener, backend Backend) *Server {
 	s := &Server{
 		listener: listener,
 		backend:  backend,
@@ -148,8 +174,11 @@ func Listen(path string, backend Backend) (*Server, error) {
 		done:     make(chan struct{}),
 	}
 	go s.pushEvents()
-	return s, nil
+	return s
 }
+
+// Addr is the address the helper listens on.
+func (s *Server) Addr() net.Addr { return s.listener.Addr() }
 
 // Serve accepts connections until Close is called.
 func (s *Server) Serve() error {

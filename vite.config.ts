@@ -50,6 +50,12 @@ export default defineConfig({
   },
 
   server: {
+    /**
+     * The development server runs inside the app, and the captive portal
+     * answers every host name so it can redirect it to the portal. Vite's
+     * host check would block those requests first.
+     */
+    allowedHosts: true,
     watch: {
       ignored: ['**/storage/**', '**/tmp/**'],
     },

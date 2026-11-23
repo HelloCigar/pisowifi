@@ -3,4 +3,6 @@
  * DO NOT EDIT manually
  */
 
-export const listeners = {}
+export const listeners = {
+  RecordDeviceSighting: () => import('#listeners/record_device_sighting'),
+}
