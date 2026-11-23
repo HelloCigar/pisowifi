@@ -16,17 +16,38 @@ test.group('Portal', (group) => {
     )
   })
 
-  test('records the Device behind the IP address', async ({ visit, route, db }) => {
+  test('shows the MAC address of the Device in the form the helper sends', async ({
+    visit,
+    route,
+  }) => {
     const helper = useFakeHelperClient()
     helper.mapIp('127.0.0.1', 'AA-BB-CC-00-00-01')
 
     const page = await visit(route('portal'))
+
     await page.assertVisible(page.getByText('aa:bb:cc:00:00:01', { exact: true }))
+  })
+
+  test('records the Device behind the IP address', async ({ visit, route, db }) => {
+    const helper = useFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    await visit(route('portal'))
 
     await db.assertHas('devices', {
       mac_address: 'aa:bb:cc:00:00:01',
       last_ip_address: '127.0.0.1',
     })
+  })
+
+  test('says something went wrong while the helper is down', async ({ visit, route }) => {
+    const helper = useFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    helper.goDown()
+
+    const page = await visit(route('portal'))
+
+    await page.assertVisible(page.getByText('Something went wrong', { exact: true }))
   })
 
   test('says it cannot recognize an IP address no Device holds', async ({ visit, route, db }) => {

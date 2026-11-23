@@ -21,9 +21,18 @@ export default class FakeHelperClient extends HelperClient {
   lastSync: AllowedDevice[] | null = null
 
   #macsByIp = new Map<string, string>()
+  #down = false
 
   constructor() {
     super(undefined, logger)
+  }
+
+  /**
+   * Stops the fake helper, as when the helper process crashes. Every request
+   * then fails as it does while the real client has no connection.
+   */
+  goDown() {
+    this.#down = true
   }
 
   /**
@@ -59,6 +68,10 @@ export default class FakeHelperClient extends HelperClient {
   async stop() {}
 
   protected async request(method: string, params: any = {}): Promise<unknown> {
+    if (this.#down) {
+      throw new HelperException('unavailable', 'The helper is not connected')
+    }
+
     switch (method) {
       case 'health':
         return { backend: 'fake', synced: this.lastSync !== null }
