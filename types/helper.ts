@@ -29,6 +29,7 @@ export type AllowedDevice = {
 export type HelperHealth = {
   backend: string
   synced: boolean
+  inhibited: boolean
 }
 
 /**
@@ -37,6 +38,7 @@ export type HelperHealth = {
 export type HelperEvent =
   | { event: 'device_online'; data: { mac: string; ip: string } }
   | { event: 'device_offline'; data: { mac: string } }
+  | { event: 'coin'; data: { pesos: number } }
 
 /**
  * The helper's answer to one request, matched to it by `id`.

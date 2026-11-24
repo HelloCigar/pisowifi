@@ -37,7 +37,11 @@
     "#config/*": "./config/*.js",
     "#types/*": "./types/*.js",
     "#values/*": "./app/values/*.js",
-    "#money/*": "./app/money/*.js"
+    "#money/*": "./app/money/*.js",
+    "#rate_card/*": "./app/rate_card/*.js",
+    "#resume_code/*": "./app/resume_code/*.js",
+    "#time_span/*": "./app/time_span/*.js",
+    "#tasks/*": "./app/tasks/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^8.6.0",

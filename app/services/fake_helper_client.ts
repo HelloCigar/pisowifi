@@ -20,6 +20,12 @@ export default class FakeHelperClient extends HelperClient {
    */
   lastSync: AllowedDevice[] | null = null
 
+  /**
+   * Whether the Coin Acceptor's inhibit line is on. It is on from startup,
+   * so the Coin Acceptor rejects coins until the app turns it off.
+   */
+  inhibited = true
+
   #macsByIp = new Map<string, string>()
   #down = false
 
@@ -58,6 +64,14 @@ export default class FakeHelperClient extends HelperClient {
   }
 
   /**
+   * Sends `coin`, as the helper does when the Coin Acceptor accepts a coin.
+   * Like the helper, it sends every coin, whatever the inhibit line says.
+   */
+  async sendCoin(pesos: number) {
+    await this.deliver({ event: 'coin', data: { pesos } })
+  }
+
+  /**
    * Sends `sync` with the allow list, as the real client does when it
    * connects.
    */
@@ -74,7 +88,7 @@ export default class FakeHelperClient extends HelperClient {
 
     switch (method) {
       case 'health':
-        return { backend: 'fake', synced: this.lastSync !== null }
+        return { backend: 'fake', synced: this.lastSync !== null, inhibited: this.inhibited }
       case 'sync':
         return this.#sync(params.devices)
       case 'allow':
@@ -86,6 +100,8 @@ export default class FakeHelperClient extends HelperClient {
         return this.#setSpeedCap(params.mac, params.speed_cap)
       case 'lookup_mac':
         return this.#lookupMac(params.ip)
+      case 'set_inhibit':
+        return this.#setInhibit(params.on)
       default:
         throw new HelperException('unknown_method', `unknown method ${method}`)
     }
@@ -110,6 +126,16 @@ export default class FakeHelperClient extends HelperClient {
       throw new HelperException('not_allowed', `Device ${mac} is blocked`)
     }
     device.speedCap = this.#speedCap(speedCap)
+  }
+
+  #setInhibit(on: unknown) {
+    if (typeof on !== 'boolean') {
+      throw new HelperException('bad_request', 'on must be a boolean')
+    }
+    if (!on) {
+      this.#assertSynced()
+    }
+    this.inhibited = on
   }
 
   #lookupMac(ip: string) {

@@ -4,6 +4,7 @@
  */
 
 export const controllers = {
+  CoinWindows: () => import('#controllers/coin_windows_controller'),
   PortalLanguage: () => import('#controllers/portal_language_controller'),
   RateTiers: () => import('#controllers/rate_tiers_controller'),
   RedirectToPortal: () => import('#controllers/redirect_to_portal_controller'),

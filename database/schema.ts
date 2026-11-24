@@ -6,7 +6,101 @@
 
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
+import type { CreditState } from '#values/credit_state'
 import type { MachineSettings } from '#types/settings'
+
+export class CoinWindowSchema extends BaseModel {
+  static $columns = [
+    'closedAt',
+    'closesAt',
+    'createdAt',
+    'deviceId',
+    'id',
+    'openedAt',
+    'updatedAt',
+  ] as const
+  $columns = CoinWindowSchema.$columns
+  @column.dateTime()
+  declare closedAt: DateTime | null
+  @column.dateTime()
+  declare closesAt: DateTime
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare deviceId: number
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare openedAt: DateTime
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class CoinSchema extends BaseModel {
+  static $columns = [
+    'amountCentavos',
+    'coinWindowId',
+    'createdAt',
+    'id',
+    'receivedAt',
+    'topUpId',
+    'updatedAt',
+  ] as const
+  $columns = CoinSchema.$columns
+  @column()
+  declare amountCentavos: number
+  @column()
+  declare coinWindowId: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare receivedAt: DateTime
+  @column()
+  declare topUpId: number | null
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class CreditSchema extends BaseModel {
+  static $columns = [
+    'countingSince',
+    'createdAt',
+    'deviceId',
+    'endedAt',
+    'expiresAt',
+    'id',
+    'lastTopUpAt',
+    'remainingSeconds',
+    'resumeCode',
+    'state',
+    'updatedAt',
+  ] as const
+  $columns = CreditSchema.$columns
+  @column.dateTime()
+  declare countingSince: DateTime | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare deviceId: number | null
+  @column.dateTime()
+  declare endedAt: DateTime | null
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column.dateTime()
+  declare lastTopUpAt: DateTime
+  @column()
+  declare remainingSeconds: number
+  @column()
+  declare resumeCode: string
+  @column()
+  declare state: CreditState
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
 
 export class DeviceSchema extends BaseModel {
   static $columns = [
@@ -67,6 +161,30 @@ export class SettingSchema extends BaseModel {
   declare data: MachineSettings
   @column({ isPrimary: true })
   declare id: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class TopUpSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'creditId',
+    'id',
+    'secondsAdded',
+    'totalCentavos',
+    'updatedAt',
+  ] as const
+  $columns = TopUpSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare creditId: number
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare secondsAdded: number
+  @column()
+  declare totalCentavos: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }

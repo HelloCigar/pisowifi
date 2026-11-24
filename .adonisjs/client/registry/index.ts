@@ -14,6 +14,18 @@ const routes = {
     tokens: [[0,"/"]],
     types: placeholder as Registry['portal']['types'],
   },
+  'coin_window.store': {
+    methods: ["POST"],
+    pattern: '/coin_window',
+    tokens: [[0,"coin_window"]],
+    types: placeholder as Registry['coin_window.store']['types'],
+  },
+  'coin_window.destroy': {
+    methods: ["DELETE"],
+    pattern: '/coin_window',
+    tokens: [[0,"coin_window"]],
+    types: placeholder as Registry['coin_window.destroy']['types'],
+  },
   'portal_language.update': {
     methods: ["PUT"],
     pattern: '/language',

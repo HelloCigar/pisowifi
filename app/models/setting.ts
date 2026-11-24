@@ -1,6 +1,7 @@
 import { column } from '@adonisjs/lucid/orm'
 import { SettingSchema } from '#database/schema'
 import type { MachineSettings } from '#types/settings'
+import type { SpeedCap } from '#types/helper'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
 /**
@@ -14,6 +15,17 @@ export default class Setting extends SettingSchema {
       typeof value === 'string' ? JSON.parse(value) : value,
   })
   declare data: MachineSettings
+
+  /**
+   * The speed cap each Device online gets, in the kilobits per second the
+   * helper takes.
+   */
+  get speedCap(): SpeedCap {
+    return {
+      downKbps: this.data.speedCapDownMbps * 1000,
+      upKbps: this.data.speedCapUpMbps * 1000,
+    }
+  }
 
   /**
    * The settings row, or null while the Machine is not set up.

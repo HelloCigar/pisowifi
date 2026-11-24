@@ -100,6 +100,14 @@ export default class HelperClient {
   }
 
   /**
+   * Drives the Coin Acceptor's inhibit line. While it is on, the Coin
+   * Acceptor rejects every coin.
+   */
+  async setInhibit(on: boolean) {
+    await this.request('set_inhibit', { on })
+  }
+
+  /**
    * The MAC address of the Device that holds `ip`, or null when no Device
    * holds it.
    */
@@ -146,6 +154,8 @@ export default class HelperClient {
         return events.DeviceCameOnline.dispatch(message.data.mac, message.data.ip)
       case 'device_offline':
         return events.DeviceWentOffline.dispatch(message.data.mac)
+      case 'coin':
+        return events.CoinAccepted.dispatch(message.data.pesos)
     }
   }
 

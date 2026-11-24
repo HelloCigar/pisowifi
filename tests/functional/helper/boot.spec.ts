@@ -1,10 +1,13 @@
 import { test } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
+import testUtils from '@adonisjs/core/services/test_utils'
 import HelperProvider from '#providers/helper_provider'
 import { useFakeHelperClient } from '#tests/helpers/helper_client'
 
-test.group('Helper at boot', () => {
-  test('sends sync with no Devices, since no Credit exists yet', async ({ assert }) => {
+test.group('Helper at boot', (group) => {
+  group.each.setup(() => testUtils.db().truncate())
+
+  test('sends sync with no Devices when no Credit exists', async ({ assert }) => {
     const helper = useFakeHelperClient()
 
     // flow-allow flow-design-tests: the app boots before a test can swap the client, so the

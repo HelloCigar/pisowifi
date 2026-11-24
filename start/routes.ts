@@ -16,8 +16,11 @@ import router from '@adonisjs/core/services/router'
  * The portal: the Customer-facing pages, at the root of the Hotspot Network.
  */
 router
-  .get('/', [controllers.ShowPortal])
-  .as('portal')
+  .group(() => {
+    router.get('/', [controllers.ShowPortal]).as('portal')
+    router.post('coin_window', [controllers.CoinWindows, 'store']).as('coin_window.store')
+    router.delete('coin_window', [controllers.CoinWindows, 'destroy']).as('coin_window.destroy')
+  })
   .use([middleware.requireSetup(), middleware.device()])
 router.put('language', [controllers.PortalLanguage, 'update']).as('portal_language.update')
 

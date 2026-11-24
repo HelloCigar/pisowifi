@@ -5,6 +5,8 @@ type ParamValue = string | number | bigint | boolean
 export type ScannedRoutes = {
   ALL: {
     'portal': { paramsTuple?: []; params?: {} }
+    'coin_window.store': { paramsTuple?: []; params?: {} }
+    'coin_window.destroy': { paramsTuple?: []; params?: {} }
     'portal_language.update': { paramsTuple?: []; params?: {} }
     'setup.create': { paramsTuple?: []; params?: {} }
     'setup.store': { paramsTuple?: []; params?: {} }
@@ -68,12 +70,8 @@ export type ScannedRoutes = {
     'templates.settings_security': { paramsTuple?: []; params?: {} }
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }
-  PUT: {
-    'portal_language.update': { paramsTuple?: []; params?: {} }
-    'admin.rate_tiers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
-  }
   POST: {
+    'coin_window.store': { paramsTuple?: []; params?: {} }
     'setup.store': { paramsTuple?: []; params?: {} }
     'admin.session.store': { paramsTuple?: []; params?: {} }
     'admin.session.destroy': { paramsTuple?: []; params?: {} }
@@ -81,12 +79,18 @@ export type ScannedRoutes = {
     'templates.signup.store': { paramsTuple?: []; params?: {} }
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }
-  PATCH: {
+  DELETE: {
+    'coin_window.destroy': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
+  }
+  PUT: {
+    'portal_language.update': { paramsTuple?: []; params?: {} }
     'admin.rate_tiers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }
-  DELETE: {
-    'admin.rate_tiers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+  PATCH: {
+    'admin.rate_tiers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }
   OPTIONS: {
