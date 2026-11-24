@@ -42,7 +42,7 @@ test.group('Adding a Rate Tier', (group) => {
     await browserContext.loginAs(operator)
 
     const page = await visit(route('admin.rate_tiers.create'))
-    await page.getByLabel('Price (₱)', { exact: true }).fill('1e308')
+    await page.getByLabel('Price (₱)', { exact: true }).fill('10001')
     await page.getByLabel('Minutes', { exact: true }).fill('60')
     await page.getByRole('button', { name: 'Save', exact: true }).click()
 

@@ -6,7 +6,7 @@ import { PortalLanguage } from '#values/portal_language'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
-  share(ctx: HttpContext) {
+  async share(ctx: HttpContext) {
     /**
      * The share method is called everytime an Inertia page is rendered. In
      * certain cases, a page may get rendered before the session middleware
@@ -16,6 +16,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
      * with all the properties
      */
     const { auth, session } = ctx as Partial<HttpContext>
+    const settings = await Setting.current()
 
     /**
      * Data shared with all Inertia pages. Make sure you are using
@@ -33,10 +34,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
        * The hotspot name the Operator set in the setup wizard, shown in the
        * portal's header and the admin sidebar. Null until setup is done.
        */
-      hotspotName: async () => {
-        const settings = await Setting.current()
-        return settings?.data.hotspotName ?? null
-      },
+      hotspotName: ctx.inertia.always(settings?.data.hotspotName ?? null),
     }
   }
 
