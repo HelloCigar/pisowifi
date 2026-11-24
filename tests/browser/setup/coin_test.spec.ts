@@ -17,6 +17,18 @@ test.group('Setup wizard: Coin Acceptor test', (group) => {
     await page.assertVisible(page.getByRole('listitem').getByText('₱5', { exact: true }))
   })
 
+  test('keeps no record of the coins the Operator tests with', async ({ visit, route, db }) => {
+    const helper = await useSyncedFakeHelperClient()
+
+    const page = await visit(route('coin_test.create'))
+    await page.getByRole('button', { name: 'Start the test', exact: true }).click()
+    await page.getByText('Insert a coin now', { exact: true }).waitFor()
+    await helper.sendCoin(5)
+    await page.getByRole('listitem').getByText('₱5', { exact: true }).waitFor()
+
+    await db.assertCount('coins', 0)
+  })
+
   test('lets the Coin Acceptor take coins while the test runs', async ({
     visit,
     route,

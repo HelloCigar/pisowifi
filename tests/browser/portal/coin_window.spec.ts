@@ -70,8 +70,11 @@ test.group('Coin Window', (group) => {
   test('moves the close time forward on the open portal when a coin arrives', async ({
     visit,
     route,
+    browserContext,
   }) => {
     freezeTime()
+    // The page counts down on the browser's clock too; hold it still.
+    await browserContext.clock.setFixedTime(Date.now())
     const helper = await useSyncedFakeHelperClient()
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
 
@@ -83,6 +86,57 @@ test.group('Coin Window', (group) => {
     await helper.sendCoin(1)
 
     await page.assertVisible(page.getByText('1 minuto', { exact: true }))
+  })
+
+  test('counts the Coin Window down on the open portal while no coins arrive', async ({
+    visit,
+    route,
+    browserContext,
+  }) => {
+    freezeTime()
+    const openedAt = Date.now()
+    await browserContext.clock.setFixedTime(openedAt)
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    await page.getByText('1 minuto', { exact: true }).waitFor()
+    await browserContext.clock.setFixedTime(openedAt + 15_000)
+
+    await page.assertVisible(page.getByText('45 segundo', { exact: true }))
+  })
+
+  test('tells a waiting Device the Coin Acceptor is taken, without a reload', async ({
+    visit,
+    route,
+  }) => {
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    const otherPage = await visit(route('portal'))
+    await otherPage.getByRole('button', { name: 'Maghulog ng Barya', exact: true }).waitFor()
+    // Every page comes from 127.0.0.1, which the fake gives to one Device at
+    // a time. The waiting Device's reads are held until the address is its
+    // own again.
+    let release = () => {}
+    const released = new Promise<void>((resolve) => (release = resolve))
+    await otherPage.route(
+      (url) => url.pathname === '/',
+      async (request) => {
+        await released
+        await request.continue()
+      }
+    )
+
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    release()
+
+    await otherPage.assertVisible(
+      otherPage.getByText('May gumagamit ng Coin Acceptor', { exact: true })
+    )
   })
 
   test('credits a coin still in flight when Done is tapped', async ({ visit, route }) => {
@@ -433,8 +487,11 @@ test.group('Coin Window', (group) => {
   test('tells a second Device the Coin Acceptor is busy and when it is free', async ({
     visit,
     route,
+    browserContext,
   }) => {
     freezeTime()
+    // The page counts down on the browser's clock too; hold it still.
+    await browserContext.clock.setFixedTime(Date.now())
     const helper = await useSyncedFakeHelperClient()
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
     const page = await visit(route('portal'))

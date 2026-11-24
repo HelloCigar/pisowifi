@@ -6,6 +6,7 @@ import type { Data } from '@generated/data'
 import PortalLayout from '~/layouts/portal.vue'
 import { usePortalText } from '~/composables/use_portal_text'
 import { useTransmit, useTransmitReconnect } from '~/composables/use_transmit'
+import { useCountdown } from '~/composables/use_countdown'
 
 defineOptions({ layout: PortalLayout })
 
@@ -37,6 +38,12 @@ watch([ownWindow.subscribed, coinAcceptor.subscribed], (now, before) => {
   }
 })
 useTransmitReconnect(reload)
+
+/**
+ * The time until the Coin Window closes, as it counts down between pushes.
+ */
+const windowClosesIn = useCountdown(() => props.coinWindow?.closesIn)
+const coinAcceptorFreeIn = useCountdown(() => props.coinAcceptorBusy?.closesIn)
 </script>
 
 <template>
@@ -92,7 +99,7 @@ useTransmitReconnect(reload)
         </div>
         <div>
           <dt class="text-sm text-muted">{{ text.windowClosesIn }}</dt>
-          <dd class="text-highlighted">{{ coinWindow.closesIn.formatted }}</dd>
+          <dd class="text-highlighted">{{ windowClosesIn }}</dd>
         </div>
       </dl>
     </template>
@@ -114,7 +121,7 @@ useTransmitReconnect(reload)
     variant="subtle"
     icon="i-lucide-hourglass"
     :title="text.busyTitle"
-    :description="`${text.busyFreeIn} ${coinAcceptorBusy.closesIn.formatted}`"
+    :description="`${text.busyFreeIn} ${coinAcceptorFreeIn}`"
   />
 
   <Form v-else v-slot="{ processing }" route="coin_window.store">

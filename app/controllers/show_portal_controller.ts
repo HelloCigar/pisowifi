@@ -35,10 +35,9 @@ export default class ShowPortalController {
       credit: credit ? CreditTransformer.transform(credit, language) : null,
       coinWindow:
         window && holdsWindow
-          ? CoinWindowTransformer.transform(window, language).useVariant('forHolder')
+          ? CoinWindowTransformer.transform(window).useVariant('forHolder')
           : null,
-      coinAcceptorBusy:
-        window && !holdsWindow ? CoinWindowTransformer.transform(window, language) : null,
+      coinAcceptorBusy: window && !holdsWindow ? CoinWindowTransformer.transform(window) : null,
       coinWindowChannel: Device.coinWindowChannel(device.id),
       coinAcceptorChannel: LiveChannel.CoinAcceptor,
     })
