@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
-import { Form } from '@adonisjs/inertia/vue'
+import { Form, Link } from '@adonisjs/inertia/vue'
 import AuthLayout from '~/layouts/auth.vue'
 
 defineOptions({ layout: AuthLayout })
@@ -46,6 +46,9 @@ function errorOf(errors: object, name: string) {
       <p class="mt-1 text-base text-pretty text-muted">
         Create your login, name your hotspot and set your prices. You can change them later.
       </p>
+      <Link route="coin_test.create" class="mt-2 text-sm font-medium text-primary">
+        Back to the Coin Acceptor test
+      </Link>
     </div>
 
     <Form

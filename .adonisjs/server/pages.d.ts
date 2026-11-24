@@ -19,6 +19,7 @@ declare module '@adonisjs/inertia/types' {
     'portal/not_ready': ExtractProps<(typeof import('../../inertia/pages/portal/not_ready.vue'))['default']>
     'portal/show': ExtractProps<(typeof import('../../inertia/pages/portal/show.vue'))['default']>
     'portal/unknown_device': ExtractProps<(typeof import('../../inertia/pages/portal/unknown_device.vue'))['default']>
+    'setup/coin_test': ExtractProps<(typeof import('../../inertia/pages/setup/coin_test.vue'))['default']>
     'setup/create': ExtractProps<(typeof import('../../inertia/pages/setup/create.vue'))['default']>
     'templates/list_detail': ExtractProps<(typeof import('../../inertia/pages/templates/list_detail.vue'))['default']>
     'templates/settings_general': ExtractProps<(typeof import('../../inertia/pages/templates/settings_general.vue'))['default']>

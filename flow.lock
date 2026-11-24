@@ -10,6 +10,7 @@
     "@adonisjs/limiter",
     "@adonisjs/lucid",
     "@adonisjs/session",
+    "@adonisjs/transmit-client",
     "@adonisjs/transmit",
     "@outloud/adonis-scheduler",
     "@vinejs/vine",

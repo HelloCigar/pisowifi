@@ -7,10 +7,12 @@
 |
 */
 
+import '#start/transmit'
 import { middleware } from '#start/kernel'
 import { controllers } from '#generated/controllers'
 import app from '@adonisjs/core/services/app'
 import router from '@adonisjs/core/services/router'
+import transmit from '@adonisjs/transmit/services/main'
 
 /**
  * The portal: the Customer-facing pages, at the root of the Hotspot Network.
@@ -30,6 +32,15 @@ router.put('language', [controllers.PortalLanguage, 'update']).as('portal_langua
  */
 router.get('setup', [controllers.Setup, 'create'])
 router.post('setup', [controllers.Setup, 'store'])
+router.get('setup/coin_test', [controllers.CoinTests, 'create']).as('coin_test.create')
+router.post('setup/coin_test', [controllers.CoinTests, 'store']).as('coin_test.store')
+router.delete('setup/coin_test', [controllers.CoinTests, 'destroy']).as('coin_test.destroy')
+
+/**
+ * The live updates the pages listen to. start/transmit.ts says who may
+ * subscribe to each private channel.
+ */
+transmit.registerRoutes()
 
 /**
  * The admin panel: the Operator-facing pages. Every page but the login

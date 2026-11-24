@@ -3,6 +3,7 @@ import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
+import transmit from '@adonisjs/transmit/services/main'
 import Money from '#money/money'
 import RateCard from '#rate_card/rate_card'
 import Coin from '#models/coin'
@@ -12,6 +13,7 @@ import Setting from '#models/setting'
 import RateTier from '#models/rate_tier'
 import CoinWindow from '#models/coin_window'
 import HelperClient from '#services/helper_client'
+import { LiveChannel } from '#values/live_channel'
 import CoinAcceptorBusyException from '#exceptions/coin_acceptor_busy_exception'
 import MachineNotReadyException from '#exceptions/machine_not_ready_exception'
 
@@ -23,6 +25,11 @@ import MachineNotReadyException from '#exceptions/machine_not_ready_exception'
  * The Coin Acceptor's inhibit line follows the window: off while a window
  * is open, on otherwise, so a coin can only be credited to the Device that
  * holds the window.
+ *
+ * Pages learn of each change over Transmit once it is saved: the holder on
+ * its Device's channel, and every portal on the Coin Acceptor's channel
+ * when the window opens or closes. A message only says what changed; the
+ * page reloads its props to read it.
  */
 @inject()
 export default class CoinWindowService {
@@ -77,6 +84,10 @@ export default class CoinWindowService {
       }
       throw error
     }
+
+    if (opened) {
+      transmit.broadcast(LiveChannel.CoinAcceptor, { type: 'coin_window.opened' })
+    }
   }
 
   /**
@@ -90,24 +101,30 @@ export default class CoinWindowService {
   async receiveCoin(pesos: number) {
     const settings = await this.#settings()
 
-    await db.transaction(async (trx) => {
-      const window = await CoinWindow.open({ client: trx })
+    const window = await db.transaction(async (trx) => {
+      const open = await CoinWindow.open({ client: trx })
       const now = DateTime.now()
       await Coin.create(
         {
           amountCentavos: Money.fromPesos(pesos).centavos,
           receivedAt: now,
-          coinWindowId: window?.id ?? null,
+          coinWindowId: open?.id ?? null,
         },
         { client: trx }
       )
-      if (!window || window.hasTimedOut) {
-        return
+      if (!open || open.hasTimedOut) {
+        return open
       }
 
-      window.closesAt = now.plus({ seconds: settings.data.coinWindowSeconds })
-      await window.save()
+      open.closesAt = now.plus({ seconds: settings.data.coinWindowSeconds })
+      await open.save()
+      return open
     })
+
+    if (!window) {
+      return
+    }
+    transmit.broadcast(Device.coinWindowChannel(window.deviceId), { type: 'coin_window.coin' })
   }
 
   /**
@@ -176,7 +193,12 @@ export default class CoinWindowService {
     })
 
     // Closed already, for example by the scheduled task during the wait.
-    if (!closed?.toppedUp) {
+    if (!closed) {
+      return
+    }
+    transmit.broadcast(LiveChannel.CoinAcceptor, { type: 'coin_window.closed' })
+    transmit.broadcast(Device.coinWindowChannel(window.deviceId), { type: 'coin_window.closed' })
+    if (!closed.toppedUp) {
       return
     }
 

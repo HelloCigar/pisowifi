@@ -4,6 +4,7 @@
  */
 
 export const controllers = {
+  CoinTests: () => import('#controllers/coin_tests_controller'),
   CoinWindows: () => import('#controllers/coin_windows_controller'),
   PortalLanguage: () => import('#controllers/portal_language_controller'),
   RateTiers: () => import('#controllers/rate_tiers_controller'),

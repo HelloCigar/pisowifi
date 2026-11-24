@@ -1,10 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Credit from '#models/credit'
+import Device from '#models/device'
 import CoinWindow from '#models/coin_window'
 import DeviceTransformer from '#transformers/device_transformer'
 import CreditTransformer from '#transformers/credit_transformer'
 import CoinWindowTransformer from '#transformers/coin_window_transformer'
 import { PortalLanguage } from '#values/portal_language'
+import { LiveChannel } from '#values/live_channel'
 
 /**
  * The portal's home page for the Device that is browsing: its Credit, its
@@ -37,6 +39,8 @@ export default class ShowPortalController {
           : null,
       coinAcceptorBusy:
         window && !holdsWindow ? CoinWindowTransformer.transform(window, language) : null,
+      coinWindowChannel: Device.coinWindowChannel(device.id),
+      coinAcceptorChannel: LiveChannel.CoinAcceptor,
     })
   }
 }
