@@ -26,8 +26,9 @@ type Simulator struct {
 	inhibited bool
 	events    chan server.Event
 
-	// slot holds the coins dropped into the fake Coin Acceptor, in order.
-	slot chan int
+	// dropped holds the coins dropped into the fake Coin Acceptor that have
+	// not sent their pulses yet, in order.
+	dropped chan int
 }
 
 // fakeDevice is a Device on the simulated Hotspot Network.
@@ -48,7 +49,7 @@ func New(out io.Writer) *Simulator {
 		devices:   map[string]*fakeDevice{},
 		inhibited: true,
 		events:    make(chan server.Event, 64),
-		slot:      make(chan int, slotSize),
+		dropped:   make(chan int, maxDropped),
 	}
 	go s.runCoinAcceptor()
 	return s

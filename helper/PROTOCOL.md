@@ -101,4 +101,5 @@ The helper does not replay events. An app that was not connected when an event h
 
 ## Still to come
 
-A later ticket adds the `mac_conflict` event to the contract.
+- The app's helper client and its in-memory fake do not speak `set_inhibit`, the `coin` event or `health`'s `inhibited` yet. They learn them with the Coin Window (#8), the first thing to use them. Until then the app ignores `coin` events.
+- A later ticket adds the `mac_conflict` event to the contract.

@@ -1,6 +1,7 @@
 package simulator
 
 import (
+	"errors"
 	"fmt"
 	"slices"
 	"time"
@@ -9,8 +10,8 @@ import (
 	"github.com/HelloCigar/pisowifi/helper/internal/server"
 )
 
-// Denominations are the coins the fake Coin Acceptor takes, in pesos.
-var Denominations = []int{1, 5, 10, 20}
+// denominations are the coins the fake Coin Acceptor takes, in pesos.
+var denominations = []int{1, 5, 10, 20}
 
 const (
 	// pulseSpacing is the time between two pulses of one coin, so a ₱20 coin
@@ -20,8 +21,8 @@ const (
 	// just longer than coins.Gap, the closest two coins can come and still
 	// count as two.
 	coinSpacing = coins.Gap + pulseSpacing
-	// slotSize is how many dropped coins may wait for their turn.
-	slotSize = 16
+	// maxDropped is how many dropped coins may wait for their turn.
+	maxDropped = 16
 )
 
 // InsertCoin drops a coin worth pesos into the fake Coin Acceptor. It sends
@@ -29,7 +30,7 @@ const (
 // real backend counts the GPIO line. Coins dropped back to back wait their
 // turn. While the inhibit line is on, the Coin Acceptor returns the coin.
 func (s *Simulator) InsertCoin(pesos int) error {
-	if !slices.Contains(Denominations, pesos) {
+	if !slices.Contains(denominations, pesos) {
 		return fmt.Errorf("there is no ₱%d coin; the Coin Acceptor takes ₱1, ₱5, ₱10 and ₱20", pesos)
 	}
 	s.mu.Lock()
@@ -39,11 +40,11 @@ func (s *Simulator) InsertCoin(pesos int) error {
 		return fmt.Errorf("the Coin Acceptor is inhibited and returned the ₱%d coin", pesos)
 	}
 	select {
-	case s.slot <- pesos:
+	case s.dropped <- pesos:
 		s.log.Printf("coin acceptor: ₱%d coin dropped", pesos)
 		return nil
 	default:
-		return fmt.Errorf("the Coin Acceptor is busy; wait for the coins already dropped")
+		return errors.New("the Coin Acceptor is busy; wait for the coins already dropped")
 	}
 }
 
@@ -51,14 +52,14 @@ func (s *Simulator) InsertCoin(pesos int) error {
 // the pulses back into coin events. It runs for the life of the simulator.
 func (s *Simulator) runCoinAcceptor() {
 	pulses := make(chan time.Time)
-	go coins.Count(pulses, coins.Gap, func(pesos int) {
+	go coins.Count(pulses, func(pesos int) {
 		s.mu.Lock()
 		defer s.mu.Unlock()
 		s.log.Printf("coin acceptor: counted a ₱%d coin", pesos)
 		s.emit(server.Coin(pesos))
 	})
 
-	for pesos := range s.slot {
+	for pesos := range s.dropped {
 		for i := range pesos {
 			if i > 0 {
 				time.Sleep(pulseSpacing)

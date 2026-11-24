@@ -13,31 +13,30 @@ import "time"
 const Gap = 250 * time.Millisecond
 
 // Count reads pulses, each the time it was seen, and calls coin with the
-// value of every finished train once gap has passed after its last pulse.
-// It returns when pulses is closed, after reporting the train in progress.
-// The real backend feeds it from the GPIO line, and the simulator from fake
-// coins.
-func Count(pulses <-chan time.Time, gap time.Duration, coin func(pesos int)) {
+// value of every finished train. A train finishes once Gap has passed after
+// its last pulse, or when a pulse arrives Gap or more after it. Count returns
+// when pulses is closed, after reporting the train in progress. The real
+// backend feeds it from the GPIO line, and the simulator from fake coins.
+func Count(pulses <-chan time.Time, coin func(pesos int)) {
 	var train counter
-	quiet := time.NewTimer(gap)
+	report := func(pesos int) {
+		if pesos > 0 {
+			coin(pesos)
+		}
+	}
+	quiet := time.NewTimer(Gap)
 	quiet.Stop()
 	for {
 		select {
 		case at, ok := <-pulses:
 			if !ok {
-				if pesos := train.flush(); pesos > 0 {
-					coin(pesos)
-				}
+				report(train.flush())
 				return
 			}
-			if pesos := train.pulse(at, gap); pesos > 0 {
-				coin(pesos)
-			}
-			quiet.Reset(gap)
+			report(train.pulse(at))
+			quiet.Reset(Gap)
 		case <-quiet.C:
-			if pesos := train.flush(); pesos > 0 {
-				coin(pesos)
-			}
+			report(train.flush())
 		}
 	}
 }
@@ -48,13 +47,13 @@ type counter struct {
 	last   time.Time
 }
 
-// pulse adds one pulse seen at at. If the line was quiet for gap before it,
+// pulse adds one pulse seen at at. If the line was quiet for Gap before it,
 // the pulse starts a new train, and pulse returns the value of the train it
 // ends; otherwise it returns 0. This catches a train whose quiet timer had
 // not fired yet when the next coin's first pulse came in.
-func (c *counter) pulse(at time.Time, gap time.Duration) int {
+func (c *counter) pulse(at time.Time) int {
 	finished := 0
-	if c.pulses > 0 && at.Sub(c.last) >= gap {
+	if c.pulses > 0 && at.Sub(c.last) >= Gap {
 		finished = c.flush()
 	}
 	c.pulses++
