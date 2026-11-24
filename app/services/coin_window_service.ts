@@ -1,4 +1,6 @@
+import { setTimeout } from 'node:timers/promises'
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
 import Money from '#money/money'
@@ -28,7 +30,8 @@ export default class CoinWindowService {
 
   /**
    * Gives the Coin Acceptor to the Device. A Device that already holds it
-   * keeps its window.
+   * keeps its window, and the inhibit line goes off again, in case the
+   * helper restarted and turned it on.
    */
   async open(device: Device) {
     const settings = await this.#settings()
@@ -63,16 +66,15 @@ export default class CoinWindowService {
         { client: trx }
       )
     })
-    if (!opened) {
-      return
-    }
 
     try {
       await this.helper.setInhibit(false)
     } catch (error) {
-      // The Coin Acceptor still rejects coins, so the window must not hold it.
-      opened.closedAt = DateTime.now()
-      await opened.save()
+      // The Coin Acceptor still rejects coins, so a new window must not hold it.
+      if (opened) {
+        opened.closedAt = DateTime.now()
+        await opened.save()
+      }
       throw error
     }
   }
@@ -112,9 +114,28 @@ export default class CoinWindowService {
    * Closes the window and gives the Coin Acceptor back. If the window
    * received any coins, they become one Top-up on the Device's Credit, or
    * on a new Credit, and the Device is let online.
+   *
+   * A coin dropped just before closing is still sending its pulses, so the
+   * window stops first: it takes no more time, the inhibit line goes on, and
+   * it keeps the Coin Acceptor while the coins in flight arrive. Only then
+   * does it close and price its coins.
    */
   async close(window: CoinWindow) {
     const settings = await this.#settings()
+    if (!(await this.#stop(window))) {
+      return
+    }
+
+    try {
+      await this.helper.setInhibit(true)
+    } catch (error) {
+      // The Customer paid, so the coins are still credited. If the helper is
+      // down it sends no coins, and it turns the line on when it restarts.
+      logger.error({ err: error }, 'could not turn the inhibit line on')
+    }
+    // A fixed wait, since the helper cannot say when the last pulse train of
+    // a coin already in the Coin Acceptor has finished.
+    await setTimeout(this.helper.coinSettleMs)
 
     const closed = await db.transaction(async (trx) => {
       const open = await CoinWindow.query({ client: trx })
@@ -154,14 +175,8 @@ export default class CoinWindowService {
       return { toppedUp: open.device }
     })
 
-    // Closed already, for example by the scheduled task just before Done.
-    // Another window may hold the Coin Acceptor by now, so leave it alone.
-    if (!closed) {
-      return
-    }
-
-    await this.helper.setInhibit(true)
-    if (!closed.toppedUp) {
+    // Closed already, for example by the scheduled task during the wait.
+    if (!closed?.toppedUp) {
       return
     }
 
@@ -169,6 +184,28 @@ export default class CoinWindowService {
       mac: closed.toppedUp.macAddress,
       ip: closed.toppedUp.lastIpAddress,
       speedCap: settings.speedCap,
+    })
+  }
+
+  /**
+   * Moves the close time of a window that is still open to now, so later
+   * coins still belong to it but no longer keep it open. Returns false when
+   * the window is closed already, and another may hold the Coin Acceptor.
+   */
+  async #stop(window: CoinWindow) {
+    return db.transaction(async (trx) => {
+      const open = await CoinWindow.query({ client: trx })
+        .where('id', window.id)
+        .whereNull('closed_at')
+        .first()
+      if (!open) {
+        return false
+      }
+      if (!open.hasTimedOut) {
+        open.closesAt = DateTime.now()
+        await open.save()
+      }
+      return true
     })
   }
 

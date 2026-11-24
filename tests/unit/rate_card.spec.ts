@@ -38,12 +38,14 @@ test.group('Rate card', () => {
 
   test('rounds the pro-rata part down to whole seconds')
     .with([
-      // ₱1 is a third of the ₱3 tier's 10 minutes: 200 seconds
-      { pesos: 1, seconds: 200 },
-      { pesos: 4, seconds: 800 },
+      // ₱1 is a seventh of the ₱7 tier's 10 minutes: 85.71 seconds
+      { pesos: 1, seconds: 85 },
+      { pesos: 2, seconds: 171 },
+      // The ₱7 tier, then ₱1 at the pro-rata rate
+      { pesos: 8, seconds: 685 },
     ])
     .run(({ assert }, { pesos, seconds }) => {
-      const rateCard = new RateCard([{ price: Money.fromPesos(3), minutes: 10 }])
+      const rateCard = new RateCard([{ price: Money.fromPesos(7), minutes: 10 }])
 
       assert.equal(rateCard.secondsFor(Money.fromPesos(pesos)), seconds)
     })

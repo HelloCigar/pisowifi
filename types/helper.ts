@@ -24,6 +24,23 @@ export type AllowedDevice = {
 }
 
 /**
+ * What the app wants the helper to hold. The client sends it each time it
+ * connects, because a restarted helper blocks every Device and turns the
+ * inhibit line on.
+ */
+export type HelperState = {
+  /**
+   * The Devices to allow, sent as `sync`.
+   */
+  devices: AllowedDevice[]
+  /**
+   * Whether the Coin Acceptor's inhibit line should be on. It is off only
+   * while a Coin Window is open.
+   */
+  inhibited: boolean
+}
+
+/**
  * What a `health` request reports.
  */
 export type HelperHealth = {

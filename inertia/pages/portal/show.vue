@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
+import { watchEffect } from 'vue'
+import { Head, usePoll } from '@inertiajs/vue3'
 import { Form } from '@adonisjs/inertia/vue'
 import type { Data } from '@generated/data'
 import PortalLayout from '~/layouts/portal.vue'
@@ -7,7 +8,7 @@ import { usePortalText } from '~/composables/use_portal_text'
 
 defineOptions({ layout: PortalLayout })
 
-defineProps<{
+const props = defineProps<{
   device: Data.Device
   credit: Data.Credit | null
   coinWindow: Data.CoinWindow.Variants['forHolder'] | null
@@ -15,6 +16,12 @@ defineProps<{
 }>()
 
 const text = usePortalText()
+
+// While a Coin Window is open the page reloads its props, so new coins, the
+// close time, the Credit after a timeout and a freed Coin Acceptor show
+// without a reload. #9 replaces this with updates pushed over Transmit.
+const poll = usePoll(2000, {}, { autoStart: false })
+watchEffect(() => (props.coinWindow || props.coinAcceptorBusy ? poll.start() : poll.stop()))
 </script>
 
 <template>

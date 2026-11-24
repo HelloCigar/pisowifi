@@ -18,7 +18,14 @@ export default class extends BaseSchema {
         .nullable()
         .references('coin_windows.id')
         .onDelete('SET NULL')
-      table.integer('top_up_id').unsigned().nullable().references('top_ups.id').onDelete('SET NULL')
+        .index()
+      table
+        .integer('top_up_id')
+        .unsigned()
+        .nullable()
+        .references('top_ups.id')
+        .onDelete('SET NULL')
+        .index()
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').notNullable()

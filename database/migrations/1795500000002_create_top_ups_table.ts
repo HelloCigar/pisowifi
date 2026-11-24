@@ -16,6 +16,7 @@ export default class extends BaseSchema {
         .notNullable()
         .references('credits.id')
         .onDelete('CASCADE')
+        .index()
       table.integer('total_centavos').unsigned().notNullable()
       table.integer('seconds_added').unsigned().notNullable()
 

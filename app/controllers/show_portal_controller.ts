@@ -18,11 +18,12 @@ export default class ShowPortalController {
       .preload('topUps', (query) => query.orderBy('id', 'desc').limit(1))
       .first()
 
-    // A window past its close time no longer holds the Coin Acceptor for
-    // anyone, even before the scheduled task closes it.
+    // A window past its close time no longer keeps other Devices waiting,
+    // even before the scheduled task closes it. Its holder still sees it
+    // until it is closed and the coins are credited.
     const open = await CoinWindow.open()
-    const window = open && !open.hasTimedOut ? open : null
-    const holdsWindow = window?.deviceId === device.id
+    const holdsWindow = open?.deviceId === device.id
+    const window = open && (holdsWindow || !open.hasTimedOut) ? open : null
     if (window && holdsWindow) {
       await window.load('coins')
     }

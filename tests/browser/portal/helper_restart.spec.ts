@@ -31,4 +31,22 @@ test.group('Helper restart', (group) => {
       { mac: 'aa:bb:cc:00:00:01', ip: '127.0.0.1', speedCap: { downKbps: 5000, upKbps: 2000 } },
     ])
   })
+
+  test('turns inhibit off again when the helper restarts during a Coin Window', async ({
+    visit,
+    route,
+    assert,
+  }) => {
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+
+    const restarted = useFakeHelperClient()
+    // flow-allow flow-design-tests: the client restores the helper each time it connects; the
+    // test runs the provider's start step to connect to the restarted fake helper as the app does.
+    await new HelperProvider(app).ready()
+
+    assert.isFalse(restarted.inhibited)
+  })
 })

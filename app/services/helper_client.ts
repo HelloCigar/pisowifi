@@ -7,6 +7,7 @@ import type {
   HelperEvent,
   HelperHealth,
   HelperReply,
+  HelperState,
   PendingHelperRequest,
   SpeedCap,
 } from '#types/helper'
@@ -15,8 +16,9 @@ import type {
  * The only part of the app that talks to the privileged helper (ADR 0002).
  * It keeps one connection open to the helper's socket, speaks the protocol
  * in helper/PROTOCOL.md, and reconnects when the connection drops. Each
- * time it connects it sends `sync`, because the helper may have restarted
- * and then blocks every Device.
+ * time it connects it sends `sync` and restores the inhibit line, because
+ * the helper may have restarted and then blocks every Device and rejects
+ * every coin.
  *
  * Tests swap it for FakeHelperClient, which keeps the helper's state in
  * memory.
@@ -34,9 +36,17 @@ export default class HelperClient {
    */
   static reconnectDelayMs = 2000
 
+  /**
+   * How long a coin can still arrive after the inhibit line goes on. A coin
+   * the Coin Acceptor took just before is still sending its pulse train,
+   * about a second for ₱20, and the helper waits 250 ms of quiet after the
+   * last pulse before it sends the `coin` event.
+   */
+  coinSettleMs = 1500
+
   #address: string | undefined
   #logger: Logger
-  #allowList: () => Promise<AllowedDevice[]> = async () => []
+  #state: () => Promise<HelperState> = async () => ({ devices: [], inhibited: true })
   #socket: net.Socket | undefined
   #connected = false
   #stopped = true
@@ -56,11 +66,11 @@ export default class HelperClient {
   }
 
   /**
-   * Opens the connection and keeps it open until `stop`. `allowList` gives
-   * the Devices to allow on every `sync`.
+   * Opens the connection and keeps it open until `stop`. `state` gives what
+   * to send the helper each time the client connects.
    */
-  async start(allowList: () => Promise<AllowedDevice[]>) {
-    this.#allowList = allowList
+  async start(state: () => Promise<HelperState>) {
+    this.#state = state
     if (!this.#address) {
       this.#logger.warn('HELPER_ADDRESS is not set, so the portal cannot identify Devices')
       return
@@ -124,6 +134,17 @@ export default class HelperClient {
   }
 
   /**
+   * Brings a helper that just started, or restarted, to the app's state:
+   * `sync` first, since the inhibit line can only go off after it.
+   */
+  protected async restore(state: HelperState) {
+    await this.sync(state.devices)
+    if (!state.inhibited) {
+      await this.setInhibit(false)
+    }
+  }
+
+  /**
    * Sends one request and waits for its reply. A failed reply rejects with
    * a HelperException that carries the protocol's error code.
    */
@@ -182,7 +203,7 @@ export default class HelperClient {
     this.#connected = true
     this.#logger.info('connected to the helper')
     try {
-      await this.sync(await this.#allowList())
+      await this.restore(await this.#state())
     } catch (error) {
       this.#logger.error({ err: error }, 'could not sync the helper')
     }

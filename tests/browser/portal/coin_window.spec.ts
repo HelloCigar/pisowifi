@@ -1,9 +1,10 @@
 import { test, freezeTime, timeTravel } from '@japa/runner'
 import app from '@adonisjs/core/services/app'
 import testUtils from '@adonisjs/core/services/test_utils'
+import User from '#models/user'
 import { finishSetup } from '#tests/helpers/machine'
 import { insertCoin, tapDone } from '#tests/helpers/portal'
-import { useSyncedFakeHelperClient } from '#tests/helpers/helper_client'
+import { useFakeHelperClient, useSyncedFakeHelperClient } from '#tests/helpers/helper_client'
 import CloseTimedOutCoinWindowsTask from '#tasks/close_timed_out_coin_windows.task'
 
 /**
@@ -58,9 +59,55 @@ test.group('Coin Window', (group) => {
     await insertCoin(page)
     await helper.sendCoin(5)
     await helper.sendCoin(1)
-    await page.reload()
 
     await page.assertVisible(page.getByText('₱6', { exact: true }))
+  })
+
+  test('credits a coin still in flight when Done is tapped', async ({ visit, route }) => {
+    freezeTime()
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    await helper.sendCoin(5)
+    helper.dropCoinInFlight(1)
+    await tapDone(page)
+
+    await page.assertVisible(page.getByText('1 oras, 12 minuto', { exact: true }))
+  })
+
+  test('counts the Credit down as time passes', async ({ visit, route }) => {
+    freezeTime()
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    await helper.sendCoin(5)
+    await tapDone(page)
+    timeTravel('30m')
+    await page.reload()
+
+    await page.assertVisible(page.getByText('30 minuto', { exact: true }))
+  })
+
+  test('adds a Top-up to the time left, not to the time bought', async ({ visit, route }) => {
+    freezeTime()
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    await helper.sendCoin(5)
+    await tapDone(page)
+    timeTravel('30m')
+    await page.reload()
+    await insertCoin(page)
+    await helper.sendCoin(5)
+    await tapDone(page)
+
+    await page.assertVisible(page.getByText('1 oras, 30 minuto', { exact: true }))
   })
 
   test('adds a second Top-up to the same Credit and keeps its Resume Code', async ({
@@ -210,6 +257,129 @@ test.group('Coin Window', (group) => {
 
     await page.assertVisible(
       page.getByRole('heading', { name: 'Wala ka pang Credit', exact: true })
+    )
+  })
+
+  test('turns a second Device away when it taps Insert Coin while the window is held', async ({
+    visit,
+    route,
+  }) => {
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    const otherPage = await visit(route('portal'))
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    await otherPage.getByRole('button', { name: 'Maghulog ng Barya', exact: true }).click()
+
+    await otherPage.assertVisible(
+      otherPage.getByText('May gumagamit ng Coin Acceptor', { exact: true })
+    )
+  })
+
+  test('keeps the window of the Device that holds it when a second Device tries to', async ({
+    visit,
+    route,
+  }) => {
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    const otherPage = await visit(route('portal'))
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    await otherPage.getByRole('button', { name: 'Maghulog ng Barya', exact: true }).click()
+    await otherPage.getByText('May gumagamit ng Coin Acceptor', { exact: true }).waitFor()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    await page.reload()
+
+    await page.assertVisible(page.getByRole('button', { name: 'Tapos na', exact: true }))
+  })
+
+  test('ignores Done from a Device whose window has already closed', async ({ visit, route }) => {
+    freezeTime()
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    const otherPage = await visit(route('portal'))
+    await insertCoin(otherPage)
+    timeTravel('61s')
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    await helper.sendCoin(5)
+
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    await otherPage.getByRole('button', { name: 'Tapos na', exact: true }).click()
+    await otherPage.getByText('May gumagamit ng Coin Acceptor', { exact: true }).waitFor()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    await page.reload()
+
+    await page.assertVisible(page.getByText('₱5', { exact: true }))
+  })
+
+  test('gives the Coin Acceptor to a waiting Device once it is free, without a reload', async ({
+    visit,
+    route,
+  }) => {
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    const otherPage = await visit(route('portal'))
+    await otherPage.getByText('May gumagamit ng Coin Acceptor', { exact: true }).waitFor()
+
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    await tapDone(page)
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+
+    await otherPage.assertVisible(
+      otherPage.getByRole('button', { name: 'Maghulog ng Barya', exact: true })
+    )
+  })
+
+  test('keeps inhibit on when the Operator has deleted every Rate Tier', async ({
+    visit,
+    route,
+    browserContext,
+    assert,
+  }) => {
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
+    await browserContext.loginAs(operator)
+    const page = await visit(route('portal'))
+    const admin = await visit(route('admin.rate_tiers.index'))
+    await admin.getByRole('button', { name: 'Delete the ₱5 Rate Tier', exact: true }).click()
+    await admin.getByRole('button', { name: 'Delete', exact: true }).click()
+    await admin.getByRole('cell', { name: '₱5', exact: true }).waitFor({ state: 'detached' })
+
+    await page.getByRole('button', { name: 'Maghulog ng Barya', exact: true }).click()
+    await page.getByRole('heading', { name: 'Hindi pa handa ang Machine', exact: true }).waitFor()
+
+    assert.isTrue(helper.inhibited)
+  })
+
+  test('frees the Coin Acceptor when the helper cannot turn inhibit off', async ({
+    visit,
+    route,
+  }) => {
+    // Not synced yet, as just after the helper restarts, so it refuses to
+    // turn the inhibit line off.
+    const helper = useFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const page = await visit(route('portal'))
+    await page.getByRole('button', { name: 'Maghulog ng Barya', exact: true }).click()
+    await page.waitForLoadState('networkidle')
+
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    const otherPage = await visit(route('portal'))
+
+    await otherPage.assertVisible(
+      otherPage.getByRole('button', { name: 'Maghulog ng Barya', exact: true })
     )
   })
 

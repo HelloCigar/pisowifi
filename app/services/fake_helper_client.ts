@@ -1,7 +1,7 @@
 import logger from '@adonisjs/core/services/logger'
 import HelperClient from '#services/helper_client'
 import HelperException from '#exceptions/helper_exception'
-import type { AllowedDevice, SpeedCap } from '#types/helper'
+import type { AllowedDevice, HelperState, SpeedCap } from '#types/helper'
 
 /**
  * A working, in-memory stand-in for the privileged helper, for tests. It
@@ -26,8 +26,15 @@ export default class FakeHelperClient extends HelperClient {
    */
   inhibited = true
 
+  /**
+   * The fake sends a coin in flight while it turns the inhibit line on, so
+   * the app need not wait for it.
+   */
+  coinSettleMs = 0
+
   #macsByIp = new Map<string, string>()
   #down = false
+  #coinsInFlight: number[] = []
 
   constructor() {
     super(undefined, logger)
@@ -72,11 +79,21 @@ export default class FakeHelperClient extends HelperClient {
   }
 
   /**
-   * Sends `sync` with the allow list, as the real client does when it
-   * connects.
+   * Drops a coin whose pulse train is still running when the inhibit line
+   * next goes on, as when a Customer taps Done right after inserting it. The
+   * helper sends its `coin` event after the line is on; the fake sends it
+   * as it turns the line on.
    */
-  async start(allowList: () => Promise<AllowedDevice[]>) {
-    await this.sync(await allowList())
+  dropCoinInFlight(pesos: number) {
+    this.#coinsInFlight.push(pesos)
+  }
+
+  /**
+   * Sends `sync` and restores the inhibit line, as the real client does
+   * when it connects.
+   */
+  async start(state: () => Promise<HelperState>) {
+    await this.restore(await state())
   }
 
   async stop() {}
@@ -128,7 +145,7 @@ export default class FakeHelperClient extends HelperClient {
     device.speedCap = this.#speedCap(speedCap)
   }
 
-  #setInhibit(on: unknown) {
+  async #setInhibit(on: unknown) {
     if (typeof on !== 'boolean') {
       throw new HelperException('bad_request', 'on must be a boolean')
     }
@@ -136,6 +153,15 @@ export default class FakeHelperClient extends HelperClient {
       this.#assertSynced()
     }
     this.inhibited = on
+    if (!on) {
+      return
+    }
+
+    const inFlight = this.#coinsInFlight
+    this.#coinsInFlight = []
+    for (const pesos of inFlight) {
+      await this.sendCoin(pesos)
+    }
   }
 
   #lookupMac(ip: string) {
