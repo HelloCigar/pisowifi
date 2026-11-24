@@ -115,9 +115,10 @@ test.group('Coin Window', (group) => {
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
     const otherPage = await visit(route('portal'))
     await otherPage.getByRole('button', { name: 'Maghulog ng Barya', exact: true }).waitFor()
-    // Every page comes from 127.0.0.1, which the fake gives to one Device at
-    // a time. The waiting Device's reads are held until the address is its
-    // own again.
+    // flow-allow flow-design-tests: every page comes from 127.0.0.1, which the fake helper
+    // maps to one Device at a time, and the portal identifies a Device only by the
+    // request's IP address. The waiting Device's reads are held until the address is its
+    // own again; trusting a forwarded IP instead would let a Customer pose as any Device.
     let release = () => {}
     const released = new Promise<void>((resolve) => (release = resolve))
     await otherPage.route(
