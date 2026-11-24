@@ -3,6 +3,7 @@ import User from '#models/user'
 import Setting from '#models/setting'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { fillSetupWizard } from '#tests/helpers/admin'
+import { useSyncedFakeHelperClient } from '#tests/helpers/helper_client'
 
 test.group('Setup wizard', (group) => {
   group.each.setup(() => testUtils.db().truncate())
@@ -72,9 +73,32 @@ test.group('Setup wizard', (group) => {
     await page.assertPath(route('admin.session.create'))
   })
 
-  test('opens from the admin login while the Machine has no Operator', async ({ visit, route }) => {
+  test('opens on the Coin Acceptor test from the admin login while the Machine has no Operator', async ({
+    visit,
+    route,
+  }) => {
+    await useSyncedFakeHelperClient()
+
     const page = await visit(route('admin.session.create'))
 
-    await page.assertPath(route('setup.create'))
+    await page.assertPath(route('coin_test.create'))
+  })
+
+  test('makes the Coin Acceptor reject coins once setup is finished', async ({
+    visit,
+    route,
+    assert,
+  }) => {
+    const helper = await useSyncedFakeHelperClient()
+    const testPage = await visit(route('coin_test.create'))
+    await testPage.getByRole('button', { name: 'Start the test', exact: true }).click()
+    await testPage.getByRole('button', { name: 'Stop the test', exact: true }).waitFor()
+
+    const page = await visit(route('setup.create'))
+    await fillSetupWizard(page)
+    await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+    await page.assertPath(route('admin.dashboard'))
+
+    assert.isTrue(helper.inhibited)
   })
 })

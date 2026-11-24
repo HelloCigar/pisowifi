@@ -51,16 +51,93 @@ test.group('Coin Window', (group) => {
     })
   })
 
-  test('shows the coins inserted so far while the window is open', async ({ visit, route }) => {
+  test('shows each coin on the open portal as it arrives, without a reload', async ({
+    visit,
+    route,
+  }) => {
     const helper = await useSyncedFakeHelperClient()
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
 
     const page = await visit(route('portal'))
     await insertCoin(page)
     await helper.sendCoin(5)
+    await page.getByText('₱5', { exact: true }).waitFor()
     await helper.sendCoin(1)
 
     await page.assertVisible(page.getByText('₱6', { exact: true }))
+  })
+
+  test('moves the close time forward on the open portal when a coin arrives', async ({
+    visit,
+    route,
+    browserContext,
+  }) => {
+    freezeTime()
+    // The page counts down on the browser's clock too; hold it still.
+    await browserContext.clock.setFixedTime(Date.now())
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    timeTravel('30s')
+    await page.reload()
+    await page.getByText('30 segundo', { exact: true }).waitFor()
+    await helper.sendCoin(1)
+
+    await page.assertVisible(page.getByText('1 minuto', { exact: true }))
+  })
+
+  test('counts the Coin Window down on the open portal while no coins arrive', async ({
+    visit,
+    route,
+    browserContext,
+  }) => {
+    freezeTime()
+    const openedAt = Date.now()
+    await browserContext.clock.setFixedTime(openedAt)
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    await page.getByText('1 minuto', { exact: true }).waitFor()
+    await browserContext.clock.setFixedTime(openedAt + 15_000)
+
+    await page.assertVisible(page.getByText('45 segundo', { exact: true }))
+  })
+
+  test('tells a waiting Device the Coin Acceptor is taken, without a reload', async ({
+    visit,
+    route,
+  }) => {
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    const otherPage = await visit(route('portal'))
+    await otherPage.getByRole('button', { name: 'Maghulog ng Barya', exact: true }).waitFor()
+    // flow-allow flow-design-tests: every page comes from 127.0.0.1, which the fake helper
+    // maps to one Device at a time, and the portal identifies a Device only by the
+    // request's IP address. The waiting Device's reads are held until the address is its
+    // own again; trusting a forwarded IP instead would let a Customer pose as any Device.
+    let release = () => {}
+    const released = new Promise<void>((resolve) => (release = resolve))
+    await otherPage.route(
+      (url) => url.pathname === '/',
+      async (request) => {
+        await released
+        await request.continue()
+      }
+    )
+
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
+    release()
+
+    await otherPage.assertVisible(
+      otherPage.getByText('May gumagamit ng Coin Acceptor', { exact: true })
+    )
   })
 
   test('credits a coin still in flight when Done is tapped', async ({ visit, route }) => {
@@ -280,8 +357,12 @@ test.group('Coin Window', (group) => {
   test('turns a second Device away when it taps Insert Coin while the window is held', async ({
     visit,
     route,
+    browserContext,
   }) => {
     const helper = await useSyncedFakeHelperClient()
+    // The second Device has lost its live connection, as a phone that slept
+    // does, so its page still offers Insert Coin.
+    await browserContext.route('**/__transmit/**', (request) => request.abort())
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
     const otherPage = await visit(route('portal'))
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
@@ -299,8 +380,12 @@ test.group('Coin Window', (group) => {
   test('keeps the window of the Device that holds it when a second Device tries to', async ({
     visit,
     route,
+    browserContext,
   }) => {
     const helper = await useSyncedFakeHelperClient()
+    // The second Device has lost its live connection, as a phone that slept
+    // does, so its page still offers Insert Coin.
+    await browserContext.route('**/__transmit/**', (request) => request.abort())
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:02')
     const otherPage = await visit(route('portal'))
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
@@ -403,8 +488,11 @@ test.group('Coin Window', (group) => {
   test('tells a second Device the Coin Acceptor is busy and when it is free', async ({
     visit,
     route,
+    browserContext,
   }) => {
     freezeTime()
+    // The page counts down on the browser's clock too; hold it still.
+    await browserContext.clock.setFixedTime(Date.now())
     const helper = await useSyncedFakeHelperClient()
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
     const page = await visit(route('portal'))

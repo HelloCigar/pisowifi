@@ -14,6 +14,14 @@ export interface ApiDefinition {
     create: typeof routes['setup.create']
     store: typeof routes['setup.store']
   }
+  coinTest: {
+    create: typeof routes['coin_test.create']
+    store: typeof routes['coin_test.store']
+    destroy: typeof routes['coin_test.destroy']
+  }
+  eventStream: typeof routes['event_stream']
+  subscribe: typeof routes['subscribe']
+  unsubscribe: typeof routes['unsubscribe']
   admin: {
     session: {
       create: typeof routes['admin.session.create']

@@ -9,7 +9,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 export default class SessionController {
   async create({ inertia, response }: HttpContext) {
     if (!(await User.operatorExists())) {
-      return response.redirect().toRoute('setup.create')
+      return response.redirect().toRoute('coin_test.create')
     }
 
     return inertia.render('auth/login', {})

@@ -44,6 +44,42 @@ const routes = {
     tokens: [[0,"setup"]],
     types: placeholder as Registry['setup.store']['types'],
   },
+  'coin_test.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/setup/coin_test',
+    tokens: [[0,"setup"],[0,"coin_test"]],
+    types: placeholder as Registry['coin_test.create']['types'],
+  },
+  'coin_test.store': {
+    methods: ["POST"],
+    pattern: '/setup/coin_test',
+    tokens: [[0,"setup"],[0,"coin_test"]],
+    types: placeholder as Registry['coin_test.store']['types'],
+  },
+  'coin_test.destroy': {
+    methods: ["DELETE"],
+    pattern: '/setup/coin_test',
+    tokens: [[0,"setup"],[0,"coin_test"]],
+    types: placeholder as Registry['coin_test.destroy']['types'],
+  },
+  'event_stream': {
+    methods: ["GET","HEAD"],
+    pattern: '/__transmit/events',
+    tokens: [[0,"__transmit"],[0,"events"]],
+    types: placeholder as Registry['event_stream']['types'],
+  },
+  'subscribe': {
+    methods: ["POST"],
+    pattern: '/__transmit/subscribe',
+    tokens: [[0,"__transmit"],[0,"subscribe"]],
+    types: placeholder as Registry['subscribe']['types'],
+  },
+  'unsubscribe': {
+    methods: ["POST"],
+    pattern: '/__transmit/unsubscribe',
+    tokens: [[0,"__transmit"],[0,"unsubscribe"]],
+    types: placeholder as Registry['unsubscribe']['types'],
+  },
   'admin.session.create': {
     methods: ["GET","HEAD"],
     pattern: '/admin/login',

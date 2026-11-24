@@ -10,6 +10,12 @@ export type ScannedRoutes = {
     'portal_language.update': { paramsTuple?: []; params?: {} }
     'setup.create': { paramsTuple?: []; params?: {} }
     'setup.store': { paramsTuple?: []; params?: {} }
+    'coin_test.create': { paramsTuple?: []; params?: {} }
+    'coin_test.store': { paramsTuple?: []; params?: {} }
+    'coin_test.destroy': { paramsTuple?: []; params?: {} }
+    'event_stream': { paramsTuple?: []; params?: {} }
+    'subscribe': { paramsTuple?: []; params?: {} }
+    'unsubscribe': { paramsTuple?: []; params?: {} }
     'admin.session.create': { paramsTuple?: []; params?: {} }
     'admin.session.store': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
@@ -35,6 +41,8 @@ export type ScannedRoutes = {
   GET: {
     'portal': { paramsTuple?: []; params?: {} }
     'setup.create': { paramsTuple?: []; params?: {} }
+    'coin_test.create': { paramsTuple?: []; params?: {} }
+    'event_stream': { paramsTuple?: []; params?: {} }
     'admin.session.create': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
     'admin.rate_tiers.index': { paramsTuple?: []; params?: {} }
@@ -54,6 +62,8 @@ export type ScannedRoutes = {
   HEAD: {
     'portal': { paramsTuple?: []; params?: {} }
     'setup.create': { paramsTuple?: []; params?: {} }
+    'coin_test.create': { paramsTuple?: []; params?: {} }
+    'event_stream': { paramsTuple?: []; params?: {} }
     'admin.session.create': { paramsTuple?: []; params?: {} }
     'admin.dashboard': { paramsTuple?: []; params?: {} }
     'admin.rate_tiers.index': { paramsTuple?: []; params?: {} }
@@ -73,6 +83,9 @@ export type ScannedRoutes = {
   POST: {
     'coin_window.store': { paramsTuple?: []; params?: {} }
     'setup.store': { paramsTuple?: []; params?: {} }
+    'coin_test.store': { paramsTuple?: []; params?: {} }
+    'subscribe': { paramsTuple?: []; params?: {} }
+    'unsubscribe': { paramsTuple?: []; params?: {} }
     'admin.session.store': { paramsTuple?: []; params?: {} }
     'admin.session.destroy': { paramsTuple?: []; params?: {} }
     'admin.rate_tiers.store': { paramsTuple?: []; params?: {} }
@@ -81,6 +94,7 @@ export type ScannedRoutes = {
   }
   DELETE: {
     'coin_window.destroy': { paramsTuple?: []; params?: {} }
+    'coin_test.destroy': { paramsTuple?: []; params?: {} }
     'admin.rate_tiers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }

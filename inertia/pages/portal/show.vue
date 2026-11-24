@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { watchEffect } from 'vue'
-import { Head, usePoll } from '@inertiajs/vue3'
+import { watch } from 'vue'
+import { Head, router } from '@inertiajs/vue3'
 import { Form } from '@adonisjs/inertia/vue'
 import type { Data } from '@generated/data'
 import PortalLayout from '~/layouts/portal.vue'
 import { usePortalText } from '~/composables/use_portal_text'
+import { useTransmit, useTransmitReconnect } from '~/composables/use_transmit'
+import { useCountdown } from '~/composables/use_countdown'
 
 defineOptions({ layout: PortalLayout })
 
@@ -13,15 +15,35 @@ const props = defineProps<{
   credit: Data.Credit | null
   coinWindow: Data.CoinWindow.Variants['forHolder'] | null
   coinAcceptorBusy: Data.CoinWindow | null
+  coinWindowChannel: string
+  coinAcceptorChannel: string
 }>()
 
 const text = usePortalText()
 
-// While a Coin Window is open the page reloads its props, so new coins, the
-// close time, the Credit after a timeout and a freed Coin Acceptor show
-// without a reload. #9 replaces this with updates pushed over Transmit.
-const poll = usePoll(2000, {}, { autoStart: false })
-watchEffect(() => (props.coinWindow || props.coinAcceptorBusy ? poll.start() : poll.stop()))
+/**
+ * The Device's Coin Window and the Coin Acceptor push a message on each
+ * change: a coin, a window opening or closing. The page then reloads what
+ * it shows, so coins, the close time, the Credit and a freed Coin Acceptor
+ * appear without a reload. As each subscription stands it reloads once
+ * too, for a change made on that channel before it did, and again after
+ * the live connection comes back, for the changes it missed.
+ */
+const reload = () => router.reload({ only: ['credit', 'coinWindow', 'coinAcceptorBusy'] })
+const ownWindow = useTransmit(() => props.coinWindowChannel, reload)
+const coinAcceptor = useTransmit(() => props.coinAcceptorChannel, reload)
+watch([ownWindow.subscribed, coinAcceptor.subscribed], (now, before) => {
+  if (now.some((live, index) => live && !before[index])) {
+    reload()
+  }
+})
+useTransmitReconnect(reload)
+
+/**
+ * The time until the Coin Window closes, as it counts down between pushes.
+ */
+const windowClosesIn = useCountdown(() => props.coinWindow?.closesIn)
+const coinAcceptorFreeIn = useCountdown(() => props.coinAcceptorBusy?.closesIn)
 </script>
 
 <template>
@@ -77,7 +99,7 @@ watchEffect(() => (props.coinWindow || props.coinAcceptorBusy ? poll.start() : p
         </div>
         <div>
           <dt class="text-sm text-muted">{{ text.windowClosesIn }}</dt>
-          <dd class="text-highlighted">{{ coinWindow.closesIn.formatted }}</dd>
+          <dd class="text-highlighted">{{ windowClosesIn }}</dd>
         </div>
       </dl>
     </template>
@@ -99,7 +121,7 @@ watchEffect(() => (props.coinWindow || props.coinAcceptorBusy ? poll.start() : p
     variant="subtle"
     icon="i-lucide-hourglass"
     :title="text.busyTitle"
-    :description="`${text.busyFreeIn} ${coinAcceptorBusy.closesIn.formatted}`"
+    :description="`${text.busyFreeIn} ${coinAcceptorFreeIn}`"
   />
 
   <Form v-else v-slot="{ processing }" route="coin_window.store">
