@@ -6,6 +6,7 @@ import (
 	"io"
 	"maps"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -14,8 +15,9 @@ const consoleHelp = `commands:
   map <mac> <ip>      lease an IP address to a fake Device
   online <mac>        connect a fake Device (sends device_online)
   offline <mac>       disconnect a fake Device (sends device_offline)
+  coin <pesos>        drop a ₱1, ₱5, ₱10 or ₱20 coin (sends coin)
   devices             list fake Devices
-  firewall            list allowed Devices and their speed caps
+  firewall            list allowed Devices, their speed caps and the inhibit line
   help                show this help`
 
 // RunConsole reads commands that fake Devices, one per line, until in ends.
@@ -43,6 +45,12 @@ func (s *Simulator) runCommand(args []string, out io.Writer) error {
 		return s.Online(args[1])
 	case args[0] == "offline" && len(args) == 2:
 		return s.Offline(args[1])
+	case args[0] == "coin" && len(args) == 2:
+		pesos, err := strconv.Atoi(strings.TrimPrefix(args[1], "₱"))
+		if err != nil {
+			return fmt.Errorf("%q is not a number of pesos", args[1])
+		}
+		return s.InsertCoin(pesos)
 	case args[0] == "devices" && len(args) == 1:
 		s.printDevices(out)
 		return nil
@@ -81,6 +89,11 @@ func (s *Simulator) printDevices(out io.Writer) {
 func (s *Simulator) printFirewall(out io.Writer) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.inhibited {
+		fmt.Fprintln(out, "coin acceptor: inhibited")
+	} else {
+		fmt.Fprintln(out, "coin acceptor: accepting coins")
+	}
 	if len(s.allowed) == 0 {
 		fmt.Fprintln(out, "every Device is blocked")
 		return

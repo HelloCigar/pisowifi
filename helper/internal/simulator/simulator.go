@@ -1,7 +1,8 @@
 // Package simulator is the helper backend for a development PC. It keeps the
 // firewall state in memory, logs every change the real Machine would make,
-// and fakes Devices so they can be mapped to IP addresses and brought online
-// or offline by hand.
+// fakes Devices so they can be mapped to IP addresses and brought online or
+// offline by hand, and fakes the Coin Acceptor's pulses for coins dropped by
+// hand.
 package simulator
 
 import (
@@ -14,14 +15,19 @@ import (
 	"github.com/HelloCigar/pisowifi/helper/internal/server"
 )
 
-// Simulator is an in-memory firewall and a set of fake Devices.
+// Simulator is an in-memory firewall, a set of fake Devices and a fake Coin
+// Acceptor.
 type Simulator struct {
 	log *log.Logger
 
-	mu      sync.Mutex
-	allowed map[string]server.Device
-	devices map[string]*fakeDevice
-	events  chan server.Event
+	mu        sync.Mutex
+	allowed   map[string]server.Device
+	devices   map[string]*fakeDevice
+	inhibited bool
+	events    chan server.Event
+
+	// slot holds the coins dropped into the fake Coin Acceptor, in order.
+	slot chan int
 }
 
 // fakeDevice is a Device on the simulated Hotspot Network.
@@ -36,12 +42,16 @@ func New(out io.Writer) *Simulator {
 	if out == nil {
 		out = io.Discard
 	}
-	return &Simulator{
-		log:     log.New(out, "simulator: ", log.Ltime),
-		allowed: map[string]server.Device{},
-		devices: map[string]*fakeDevice{},
-		events:  make(chan server.Event, 64),
+	s := &Simulator{
+		log:       log.New(out, "simulator: ", log.Ltime),
+		allowed:   map[string]server.Device{},
+		devices:   map[string]*fakeDevice{},
+		inhibited: true,
+		events:    make(chan server.Event, 64),
+		slot:      make(chan int, slotSize),
 	}
+	go s.runCoinAcceptor()
+	return s
 }
 
 // Name identifies the backend in health replies.
@@ -210,8 +220,30 @@ func (s *Simulator) emit(event server.Event) {
 	}
 }
 
+// SetInhibit drives the simulated Coin Acceptor's inhibit line. While it is
+// on, the Coin Acceptor rejects every coin.
+func (s *Simulator) SetInhibit(on bool) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.inhibited = on
+	if on {
+		s.log.Printf("coin acceptor: inhibit on, coins are rejected")
+	} else {
+		s.log.Printf("coin acceptor: inhibit off, coins are accepted")
+	}
+	return nil
+}
+
+// Inhibited reports whether the simulated Coin Acceptor's inhibit line is
+// on.
+func (s *Simulator) Inhibited() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.inhibited
+}
+
 // Events delivers device_online and device_offline as fake Devices come and
-// go.
+// go, and coin as fake coins are counted.
 func (s *Simulator) Events() <-chan server.Event { return s.events }
 
 func (s *Simulator) device(mac string) (*fakeDevice, error) {

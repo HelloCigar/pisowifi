@@ -1,28 +1,31 @@
 # Piso WiFi helper
 
-The privileged helper of the Machine (ADR 0002). It runs as root and owns the firewall, the speed caps and, later, the Coin Acceptor. The AdonisJS app talks to it over a Unix socket, using the protocol in [PROTOCOL.md](PROTOCOL.md).
+The privileged helper of the Machine (ADR 0002). It runs as root and owns the firewall, the speed caps and the Coin Acceptor. The AdonisJS app talks to it over a Unix socket, using the protocol in [PROTOCOL.md](PROTOCOL.md).
 
 Requires Go 1.27 or later.
 
 ## Run the simulator on a development PC
 
-The simulator backend keeps the firewall in memory, logs every change the real Machine would make, and fakes Devices from a console. It runs on Windows, macOS and Linux.
+The simulator backend keeps the firewall and the Coin Acceptor's inhibit line in memory, logs every change the real Machine would make, and fakes Devices and coins from a console. It runs on Windows, macOS and Linux.
 
 ```sh
 cd helper
 go run ./cmd/pisowifi-helper -backend simulator
 ```
 
-It prints the socket path it listens on. Set the app's `HELPER_ADDRESS` to that path. Type commands into the console to fake Devices:
+It prints the socket path it listens on. Set the app's `HELPER_ADDRESS` to that path. Type commands into the console to fake Devices and coins:
 
 ```text
 add aa:bb:cc:00:00:01
 map aa:bb:cc:00:00:01 10.0.0.11
 online aa:bb:cc:00:00:01
 offline aa:bb:cc:00:00:01
+coin 20
 devices
 firewall
 ```
+
+`coin` drops a ₱1, ₱5, ₱10 or ₱20 coin. The simulator sends its pulses one per peso, about 50 ms apart, and counts them into a `coin` event as the real Machine does. While the inhibit line is on, which it is from startup until the app turns it off, the Coin Acceptor returns the coin. `firewall` shows the inhibit line too.
 
 ### On Windows
 
@@ -70,5 +73,6 @@ The real hardware backends come in a later ticket. Until then, the binary only h
 ## Layout
 
 - `cmd/pisowifi-helper`: the binary and its flags.
-- `internal/server`: the socket protocol, and the rule that every Device stays blocked until the first `sync`. It drives a `Backend`.
-- `internal/simulator`: the simulator backend and its console.
+- `internal/server`: the socket protocol, and the rule that every Device stays blocked and the Coin Acceptor stays inhibited until the first `sync`. It drives a `Backend`.
+- `internal/coins`: groups the Coin Acceptor's pulses into coins. Every backend counts its pulses with it.
+- `internal/simulator`: the simulator backend, its fake Coin Acceptor, and its console.
