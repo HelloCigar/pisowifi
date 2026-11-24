@@ -1,9 +1,11 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import { finishSetup } from '#tests/helpers/machine'
 import { useFakeHelperClient } from '#tests/helpers/helper_client'
 
 test.group('Portal language', (group) => {
   group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => finishSetup())
 
   test('switches the portal from Filipino to English', async ({ visit, route }) => {
     const helper = useFakeHelperClient()

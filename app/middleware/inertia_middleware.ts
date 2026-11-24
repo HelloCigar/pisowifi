@@ -1,11 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
+import Setting from '#models/setting'
 import UserTransformer from '#transformers/user_transformer'
 import { PortalLanguage } from '#values/portal_language'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
 
 export default class InertiaMiddleware extends BaseInertiaMiddleware {
-  share(ctx: HttpContext) {
+  async share(ctx: HttpContext) {
     /**
      * The share method is called everytime an Inertia page is rendered. In
      * certain cases, a page may get rendered before the session middleware
@@ -15,6 +16,7 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
      * with all the properties
      */
     const { auth, session } = ctx as Partial<HttpContext>
+    const settings = await Setting.current()
 
     /**
      * Data shared with all Inertia pages. Make sure you are using
@@ -28,6 +30,11 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
        * The admin panel is always in English.
        */
       portalLanguage: session?.get('portal_language', PortalLanguage.Filipino) as PortalLanguage,
+      /**
+       * The hotspot name the Operator set in the setup wizard, shown in the
+       * portal's header and the admin sidebar. Null until setup is done.
+       */
+      hotspotName: ctx.inertia.always(settings?.data.hotspotName ?? null),
     }
   }
 

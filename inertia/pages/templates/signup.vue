@@ -59,7 +59,7 @@ const fields: AuthFormField[] = [
   >
     <template #description>
       Already have an account?
-      <Link route="session.create" class="text-primary font-medium">Sign in</Link>.
+      <Link route="admin.session.create" class="text-primary font-medium">Sign in</Link>.
     </template>
   </AuthForm>
 </template>

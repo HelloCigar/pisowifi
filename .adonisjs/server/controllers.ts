@@ -5,8 +5,10 @@
 
 export const controllers = {
   PortalLanguage: () => import('#controllers/portal_language_controller'),
+  RateTiers: () => import('#controllers/rate_tiers_controller'),
   RedirectToPortal: () => import('#controllers/redirect_to_portal_controller'),
   Session: () => import('#controllers/session_controller'),
+  Setup: () => import('#controllers/setup_controller'),
   ShowPortal: () => import('#controllers/show_portal_controller'),
   templates: {
     ListDetail: () => import('#controllers/templates/list_detail_controller'),

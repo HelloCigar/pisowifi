@@ -6,12 +6,26 @@ export interface ApiDefinition {
   portalLanguage: {
     update: typeof routes['portal_language.update']
   }
-  session: {
-    create: typeof routes['session.create']
-    store: typeof routes['session.store']
-    destroy: typeof routes['session.destroy']
+  setup: {
+    create: typeof routes['setup.create']
+    store: typeof routes['setup.store']
   }
-  dashboard: typeof routes['dashboard']
+  admin: {
+    session: {
+      create: typeof routes['admin.session.create']
+      store: typeof routes['admin.session.store']
+      destroy: typeof routes['admin.session.destroy']
+    }
+    dashboard: typeof routes['admin.dashboard']
+    rateTiers: {
+      index: typeof routes['admin.rate_tiers.index']
+      create: typeof routes['admin.rate_tiers.create']
+      store: typeof routes['admin.rate_tiers.store']
+      edit: typeof routes['admin.rate_tiers.edit']
+      update: typeof routes['admin.rate_tiers.update']
+      destroy: typeof routes['admin.rate_tiers.destroy']
+    }
+  }
   templates: {
     stats: typeof routes['templates.stats']
     table: {

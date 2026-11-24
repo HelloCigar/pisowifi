@@ -1,9 +1,11 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import { finishSetup } from '#tests/helpers/machine'
 import { useFakeHelperClient } from '#tests/helpers/helper_client'
 
 test.group('Portal', (group) => {
   group.each.setup(() => testUtils.db().truncate())
+  group.each.setup(() => finishSetup())
 
   test('tells a Device with no Credit that it has none yet', async ({ visit, route }) => {
     const helper = useFakeHelperClient()
@@ -14,6 +16,15 @@ test.group('Portal', (group) => {
     await page.assertVisible(
       page.getByRole('heading', { name: 'Wala ka pang Credit', exact: true })
     )
+  })
+
+  test('shows the hotspot name the Operator set', async ({ visit, route }) => {
+    const helper = useFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+
+    await page.assertVisible(page.getByRole('banner').getByText('Aling Nena WiFi', { exact: true }))
   })
 
   test('shows the MAC address of the Device in the form the helper sends', async ({

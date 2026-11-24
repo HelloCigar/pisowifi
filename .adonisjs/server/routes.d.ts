@@ -6,10 +6,18 @@ export type ScannedRoutes = {
   ALL: {
     'portal': { paramsTuple?: []; params?: {} }
     'portal_language.update': { paramsTuple?: []; params?: {} }
-    'session.create': { paramsTuple?: []; params?: {} }
-    'session.store': { paramsTuple?: []; params?: {} }
-    'dashboard': { paramsTuple?: []; params?: {} }
-    'session.destroy': { paramsTuple?: []; params?: {} }
+    'setup.create': { paramsTuple?: []; params?: {} }
+    'setup.store': { paramsTuple?: []; params?: {} }
+    'admin.session.create': { paramsTuple?: []; params?: {} }
+    'admin.session.store': { paramsTuple?: []; params?: {} }
+    'admin.dashboard': { paramsTuple?: []; params?: {} }
+    'admin.session.destroy': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.index': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.create': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.store': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.rate_tiers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'admin.rate_tiers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'templates.stats': { paramsTuple?: []; params?: {} }
     'templates.table.index': { paramsTuple?: []; params?: {} }
     'templates.list_detail.index': { paramsTuple?: []; params?: {} }
@@ -24,8 +32,12 @@ export type ScannedRoutes = {
   }
   GET: {
     'portal': { paramsTuple?: []; params?: {} }
-    'session.create': { paramsTuple?: []; params?: {} }
-    'dashboard': { paramsTuple?: []; params?: {} }
+    'setup.create': { paramsTuple?: []; params?: {} }
+    'admin.session.create': { paramsTuple?: []; params?: {} }
+    'admin.dashboard': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.index': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.create': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'templates.stats': { paramsTuple?: []; params?: {} }
     'templates.table.index': { paramsTuple?: []; params?: {} }
     'templates.list_detail.index': { paramsTuple?: []; params?: {} }
@@ -39,8 +51,12 @@ export type ScannedRoutes = {
   }
   HEAD: {
     'portal': { paramsTuple?: []; params?: {} }
-    'session.create': { paramsTuple?: []; params?: {} }
-    'dashboard': { paramsTuple?: []; params?: {} }
+    'setup.create': { paramsTuple?: []; params?: {} }
+    'admin.session.create': { paramsTuple?: []; params?: {} }
+    'admin.dashboard': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.index': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.create': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'templates.stats': { paramsTuple?: []; params?: {} }
     'templates.table.index': { paramsTuple?: []; params?: {} }
     'templates.list_detail.index': { paramsTuple?: []; params?: {} }
@@ -54,21 +70,26 @@ export type ScannedRoutes = {
   }
   PUT: {
     'portal_language.update': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }
   POST: {
-    'session.store': { paramsTuple?: []; params?: {} }
-    'session.destroy': { paramsTuple?: []; params?: {} }
+    'setup.store': { paramsTuple?: []; params?: {} }
+    'admin.session.store': { paramsTuple?: []; params?: {} }
+    'admin.session.destroy': { paramsTuple?: []; params?: {} }
+    'admin.rate_tiers.store': { paramsTuple?: []; params?: {} }
     'templates.signup.store': { paramsTuple?: []; params?: {} }
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }
-  OPTIONS: {
-    'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
-  }
   PATCH: {
+    'admin.rate_tiers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }
   DELETE: {
+    'admin.rate_tiers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
+  }
+  OPTIONS: {
     'captive': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
   }
 }

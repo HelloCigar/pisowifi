@@ -20,7 +20,7 @@ const otherLanguage = computed(() => (page.props.portalLanguage === 'fil' ? 'en'
       <div class="mx-auto flex w-full max-w-md items-center justify-between gap-4 px-4 py-3">
         <div class="flex items-center gap-2 font-semibold text-highlighted">
           <UIcon name="i-lucide-wifi" class="size-5 text-primary" />
-          <span>Piso WiFi</span>
+          <span>{{ page.props.hotspotName ?? 'Piso WiFi' }}</span>
         </div>
 
         <Form

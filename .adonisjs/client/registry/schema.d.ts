@@ -34,9 +34,35 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/portal_language_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
-  'session.create': {
+  'setup.create': {
     methods: ["GET","HEAD"]
-    pattern: '/login'
+    pattern: '/setup'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/setup_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/setup_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/setup_controller').default['create']>>>
+    }
+  }
+  'setup.store': {
+    methods: ["POST"]
+    pattern: '/setup'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/setup').setupValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/setup').setupValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/setup_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/setup_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/setup_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.session.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/login'
     types: {
       body: {}
       paramsTuple: []
@@ -47,9 +73,9 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['create']>>>
     }
   }
-  'session.store': {
+  'admin.session.store': {
     methods: ["POST"]
-    pattern: '/login'
+    pattern: '/admin/login'
     types: {
       body: ExtractBody<InferInput<(typeof import('#validators/user').loginValidator)>>
       paramsTuple: []
@@ -60,9 +86,9 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
-  'dashboard': {
+  'admin.dashboard': {
     methods: ["GET","HEAD"]
-    pattern: '/dashboard'
+    pattern: '/admin'
     types: {
       body: {}
       paramsTuple: []
@@ -73,9 +99,9 @@ export interface Registry {
       rawResponse: ExtractRawResponse<unknown>
     }
   }
-  'session.destroy': {
+  'admin.session.destroy': {
     methods: ["POST"]
-    pattern: '/logout'
+    pattern: '/admin/logout'
     types: {
       body: {}
       paramsTuple: []
@@ -84,6 +110,84 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
+    }
+  }
+  'admin.rate_tiers.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/rate_tiers'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['index']>>>
+    }
+  }
+  'admin.rate_tiers.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/rate_tiers/create'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['create']>>>
+    }
+  }
+  'admin.rate_tiers.store': {
+    methods: ["POST"]
+    pattern: '/admin/rate_tiers'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rate_tier').createRateTierValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/rate_tier').createRateTierValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.rate_tiers.edit': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/rate_tiers/:id/edit'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['edit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['edit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['edit']>>>
+    }
+  }
+  'admin.rate_tiers.update': {
+    methods: ["PUT","PATCH"]
+    pattern: '/admin/rate_tiers/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/rate_tier').updateRateTierValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/rate_tier').updateRateTierValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'admin.rate_tiers.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/rate_tiers/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/rate_tiers_controller').default['destroy']>>>
     }
   }
   'templates.stats': {

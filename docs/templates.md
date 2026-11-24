@@ -21,8 +21,9 @@ Copy a template's page, components and layout, then replace the demo data with r
 - **Layouts.** `inertia/layouts/dashboard.vue` is the sidebar shell, with search, a user menu and a notifications slideover. Its sidebar links between the templates. `inertia/layouts/settings.vue` is the settings panel with tabs. Both are used only by templates.
 - **Demo data.** `app/services/demo/` holds the demo records, and `types/templates.ts` their shapes. `/_templates/notifications` serves the slideover's notifications as JSON.
 - **Portal.** `inertia/layouts/portal.vue` is the layout of every Customer-facing page. Unlike the starter's templates it is a real page, not demo data, and it was built for this app because the starter had no portal layout. Put a portal page's words in `inertia/composables/use_portal_text.ts`, in Filipino and English.
-- **Auth.** `inertia/layouts/auth.vue` and `inertia/pages/auth/login.vue` are not templates. They are the base of the Operator login.
+- **Auth.** `inertia/layouts/auth.vue` and `inertia/pages/auth/login.vue` are not templates. They are the Operator login at `/admin/login`, and the auth layout also holds the setup wizard (`inertia/pages/setup/create.vue`).
+- **Admin.** `inertia/layouts/admin.vue` is the layout of every admin page: a slimmer copy of the dashboard shell, with the admin pages in its sidebar and the logout in its footer. Its pages are real, under `inertia/pages/admin/`. The Rate Tiers list follows the `table` template.
 
 ## Signup
 
-Public signup is not a route of the app. The signup template still submits, so a developer can create a user and sign in locally until the setup wizard creates the Operator.
+Public signup is not a route of the app. The setup wizard at `/setup` creates the Operator on a new Machine. The signup template still submits, so a developer can create another user locally.
