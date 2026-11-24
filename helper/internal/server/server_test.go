@@ -3,6 +3,7 @@ package server_test
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"net"
 	"os"
 	"path/filepath"
@@ -347,6 +348,101 @@ func assertBlocked(t *testing.T, sim *simulator.Simulator, mac string) {
 	if _, ok := sim.AllowedDevices()[mac]; ok {
 		t.Fatalf("expected %s to be blocked", mac)
 	}
+}
+
+func TestTheCoinAcceptorIsInhibitedAtStartupAndFollowsSetInhibitAfterTheFirstSync(t *testing.T) {
+	sim, app := startHelper(t)
+	if !sim.Inhibited() || assertOK(t, app.call("health", nil))["inhibited"] != true {
+		t.Fatal("expected the Coin Acceptor to be inhibited at startup")
+	}
+	assertError(t, app.call("set_inhibit", map[string]any{"on": false}), "not_synced")
+	if !sim.Inhibited() {
+		t.Fatal("set_inhibit off must not take effect before the first sync")
+	}
+	syncNothing(t, app)
+
+	assertOK(t, app.call("set_inhibit", map[string]any{"on": false}))
+	if sim.Inhibited() || assertOK(t, app.call("health", nil))["inhibited"] != false {
+		t.Fatal("expected set_inhibit off to enable the Coin Acceptor")
+	}
+	assertOK(t, app.call("set_inhibit", map[string]any{"on": true}))
+	if !sim.Inhibited() {
+		t.Fatal("expected set_inhibit on to inhibit the Coin Acceptor")
+	}
+}
+
+func TestStartingTheHelperInhibitsACoinAcceptorLeftEnabled(t *testing.T) {
+	sim := simulator.New(nil)
+	must(t, sim.SetInhibit(false))
+
+	startHelperWith(t, sim)
+
+	if !sim.Inhibited() {
+		t.Fatal("expected the Coin Acceptor to be inhibited at startup")
+	}
+}
+
+func TestSetInhibitWithoutOnIsRejected(t *testing.T) {
+	sim, app := startHelper(t)
+	syncNothing(t, app)
+
+	assertError(t, app.call("set_inhibit", map[string]any{}), "bad_request")
+
+	if !sim.Inhibited() {
+		t.Fatal("a rejected set_inhibit must change nothing")
+	}
+}
+
+// acceptCoins syncs and enables the Coin Acceptor, as the app does when a
+// Coin Window opens.
+func acceptCoins(t *testing.T, app *fakeApp) {
+	t.Helper()
+	syncNothing(t, app)
+	assertOK(t, app.call("set_inhibit", map[string]any{"on": false}))
+}
+
+func TestEachPulseTrainBecomesOneCoinEventWorthOnePesoAPulse(t *testing.T) {
+	for _, pesos := range []int{1, 5, 10, 20} {
+		t.Run(fmt.Sprintf("₱%d", pesos), func(t *testing.T) {
+			t.Parallel()
+			sim, app := startHelper(t)
+			acceptCoins(t, app)
+
+			must(t, sim.InsertCoin(pesos))
+			coin := app.event()
+			// A ₱1 coin next proves the train did not split into more events.
+			must(t, sim.InsertCoin(1))
+			next := app.event()
+
+			assertEvent(t, coin, "coin", map[string]any{"pesos": float64(pesos)})
+			assertEvent(t, next, "coin", map[string]any{"pesos": float64(1)})
+		})
+	}
+}
+
+func TestTwoCoinsDroppedBackToBackBecomeTwoCoinEvents(t *testing.T) {
+	sim, app := startHelper(t)
+	acceptCoins(t, app)
+
+	must(t, sim.InsertCoin(5))
+	must(t, sim.InsertCoin(10))
+
+	assertEvent(t, app.event(), "coin", map[string]any{"pesos": float64(5)})
+	assertEvent(t, app.event(), "coin", map[string]any{"pesos": float64(10)})
+}
+
+func TestAnInhibitedCoinAcceptorReturnsCoins(t *testing.T) {
+	sim, app := startHelper(t)
+	syncNothing(t, app)
+
+	if err := sim.InsertCoin(5); err == nil {
+		t.Fatal("expected the inhibited Coin Acceptor to return the coin")
+	}
+	assertOK(t, app.call("set_inhibit", map[string]any{"on": false}))
+	must(t, sim.InsertCoin(1))
+
+	// The first coin event is the ₱1, so the returned ₱5 was never counted.
+	assertEvent(t, app.event(), "coin", map[string]any{"pesos": float64(1)})
 }
 
 func TestTheHelperServesOnLoopbackTCPForAWindowsPC(t *testing.T) {

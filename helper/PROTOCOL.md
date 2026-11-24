@@ -48,30 +48,33 @@ A line that is not valid JSON gets a `bad_request` reply with `"id": null`.
 
 ## Startup
 
-When the helper starts, it blocks every Device. Until the first `sync`:
+When the helper starts, it blocks every Device and turns the Coin Acceptor's inhibit line on, so the Coin Acceptor rejects every coin. Until the first `sync`:
 
 - `allow` and `set_speed_cap` fail with `not_synced`;
-- `block`, `lookup_mac` and `health` work.
+- `set_inhibit` with `"on": false` fails with `not_synced`;
+- `block`, `set_inhibit` with `"on": true`, `lookup_mac` and `health` work.
 
-So after a reboot or power loss nobody gets online until the app has decided who has time left and sent `sync`. The app sends `sync` every time it connects, because the helper may have restarted.
+So after a reboot or power loss nobody gets online, and no coin is taken, until the app has decided who has time left and sent `sync`. After the first `sync` the inhibit line stays on until the app turns it off. The app sends `sync` every time it connects, because the helper may have restarted.
 
 ## Requests
 
 | Method | Params | Result | Errors |
 | --- | --- | --- | --- |
-| `health` | none | `{"backend": "simulator", "synced": false}` | |
+| `health` | none | `{"backend": "simulator", "synced": false, "inhibited": true}` | |
 | `sync` | `{"devices": [{"mac", "ip", "speed_cap"}, …]}` | none | `bad_request` |
 | `allow` | `{"mac", "ip", "speed_cap"}` | none | `bad_request`, `not_synced` |
 | `block` | `{"mac"}` | none | `bad_request` |
 | `set_speed_cap` | `{"mac", "speed_cap"}` | none | `bad_request`, `not_synced`, `not_allowed` |
 | `lookup_mac` | `{"ip"}` | `{"mac"}` | `bad_request`, `unknown_ip` |
+| `set_inhibit` | `{"on"}` | none | `bad_request`, `not_synced` |
 
-- **`health`**: `backend` names the backend the helper drives. `synced` is true once the first `sync` has arrived.
+- **`health`**: `backend` names the backend the helper drives. `synced` is true once the first `sync` has arrived. `inhibited` is true while the Coin Acceptor's inhibit line is on.
 - **`sync`**: replaces the whole allow list. The listed Devices are allowed with their speed caps, and every other Device is blocked. `devices` is required. An empty list (`[]`) blocks everyone. If `devices` is missing or one Device in it is invalid, nothing changes and it does not count as the first `sync`.
 - **`allow`**: lets one Device through with its speed cap. Allowing a Device that is already allowed replaces its IP address and speed cap.
 - **`block`**: cuts one Device off. Blocking a Device that is already blocked succeeds.
 - **`set_speed_cap`**: changes the speed cap of an allowed Device. A blocked Device has no speed cap, so this fails with `not_allowed`. Use `allow` with the cap instead.
 - **`lookup_mac`**: finds the MAC address of the Device that holds an IP address, from the DHCP leases or the ARP table. An IP address no Device holds fails with `unknown_ip`.
+- **`set_inhibit`**: drives the Coin Acceptor's inhibit line. `"on": true` makes the Coin Acceptor reject every coin, and `"on": false` lets it accept coins. `on` is a required boolean. Setting the line to the state it is already in succeeds.
 
 ## Events
 
@@ -79,6 +82,9 @@ So after a reboot or power loss nobody gets online until the app has decided who
 | --- | --- | --- |
 | `device_online` | `{"mac", "ip"}` | A Device connects to the Hotspot Network. |
 | `device_offline` | `{"mac"}` | A Device leaves the Hotspot Network. |
+| `coin` | `{"pesos"}` | The Coin Acceptor accepted a coin worth `pesos`. |
+
+**Coins.** The Coin Acceptor sends one pulse per peso, so a ₱20 coin is a train of 20 pulses that takes about a second. The helper sends one `coin` event per train, once the line has been quiet for 250 ms. Two coins dropped one after the other are two events. The helper sends every coin it counts, whatever the inhibit line says; a coin that arrives when no Coin Window is open is an Orphan Coin for the app to keep.
 
 The helper does not replay events. An app that was not connected when an event happened does not get it.
 
@@ -88,11 +94,12 @@ The helper does not replay events. An app that was not connected when an event h
 | --- | --- |
 | `bad_request` | The line is not JSON, `params` is missing, or a value is invalid. The message says which. |
 | `unknown_method` | The helper does not know the method. |
-| `not_synced` | The request would open the firewall before the first `sync`. |
+| `not_synced` | The request would open the firewall or enable the Coin Acceptor before the first `sync`. |
 | `not_allowed` | `set_speed_cap` on a blocked Device. |
 | `unknown_ip` | `lookup_mac` found no Device for the IP address. |
 | `backend_failed` | The firewall, traffic control or leases could not be changed or read. The message has the cause. The app should treat the change as not made and retry, or send `sync`. |
 
 ## Still to come
 
-Later tickets add these to the contract: the `set_inhibit` request, and the `coin` and `mac_conflict` events.
+- The app's helper client and its in-memory fake do not speak `set_inhibit`, the `coin` event or `health`'s `inhibited` yet. They learn them with the Coin Window (#8), the first thing to use them. Until then the app ignores `coin` events.
+- A later ticket adds the `mac_conflict` event to the contract.

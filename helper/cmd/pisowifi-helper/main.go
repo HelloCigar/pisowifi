@@ -2,7 +2,7 @@
 // (ADR 0002). It serves the protocol in PROTOCOL.md on a Unix socket.
 //
 // On a development PC, run it with the simulator backend and fake Devices
-// from its console on stdin:
+// and coins from its console on stdin:
 //
 //	go run ./cmd/pisowifi-helper -backend simulator
 //

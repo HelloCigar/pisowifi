@@ -34,8 +34,12 @@ type Backend interface {
 	// LookupMAC finds the MAC address of the Device that holds ip, from the
 	// DHCP leases or the ARP table. ok is false when no Device holds it.
 	LookupMAC(ip string) (mac string, ok bool, err error)
-	// Events delivers what the backend sees happen on the Hotspot Network.
-	// The server pushes each one to every connected app.
+	// SetInhibit drives the Coin Acceptor's inhibit line. While it is on,
+	// the Coin Acceptor rejects every coin.
+	SetInhibit(on bool) error
+	// Events delivers what the backend sees happen on the Hotspot Network
+	// and at the Coin Acceptor. The server pushes each one to every
+	// connected app.
 	Events() <-chan Event
 }
 
@@ -53,6 +57,11 @@ func DeviceOnline(mac, ip string) Event {
 // DeviceOffline reports that a Device has left the Hotspot Network.
 func DeviceOffline(mac string) Event {
 	return Event{Name: "device_offline", Data: map[string]string{"mac": mac}}
+}
+
+// Coin reports one coin the Coin Acceptor accepted, worth pesos.
+func Coin(pesos int) Event {
+	return Event{Name: "coin", Data: map[string]int{"pesos": pesos}}
 }
 
 // Device is one allowed Device as the app describes it.
@@ -93,11 +102,12 @@ type Server struct {
 	listener net.Listener
 	backend  Backend
 
-	// mu orders every change to the firewall, so the backend sees them in
-	// the same order as allowed records them.
-	mu      sync.Mutex
-	synced  bool
-	allowed map[string]Device
+	// mu orders every change to the firewall and the inhibit line, so the
+	// backend sees them in the same order as the server records them.
+	mu        sync.Mutex
+	synced    bool
+	allowed   map[string]Device
+	inhibited bool
 
 	connsMu sync.Mutex
 	conns   map[*appConn]struct{}
@@ -130,8 +140,7 @@ const maxLine = 1 << 20
 // Listen blocks every Device, removes a stale socket file left by a previous
 // run, and listens on path.
 func Listen(path string, backend Backend) (*Server, error) {
-	// Block every Device until the app's first sync says who has time left.
-	if err := backend.Sync(nil); err != nil {
+	if err := lockDown(backend); err != nil {
 		return nil, err
 	}
 	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
@@ -155,7 +164,7 @@ func ListenTCP(address string, backend Backend) (*Server, error) {
 	if ip := net.ParseIP(host); ip == nil || !ip.IsLoopback() {
 		return nil, fmt.Errorf("%s is not a loopback address", address)
 	}
-	if err := backend.Sync(nil); err != nil {
+	if err := lockDown(backend); err != nil {
 		return nil, err
 	}
 	listener, err := net.Listen("tcp", address)
@@ -165,13 +174,23 @@ func ListenTCP(address string, backend Backend) (*Server, error) {
 	return serve(listener, backend), nil
 }
 
+// lockDown blocks every Device and inhibits the Coin Acceptor until the
+// app's first sync says who has time left.
+func lockDown(backend Backend) error {
+	if err := backend.Sync(nil); err != nil {
+		return err
+	}
+	return backend.SetInhibit(true)
+}
+
 func serve(listener net.Listener, backend Backend) *Server {
 	s := &Server{
-		listener: listener,
-		backend:  backend,
-		allowed:  map[string]Device{},
-		conns:    map[*appConn]struct{}{},
-		done:     make(chan struct{}),
+		listener:  listener,
+		backend:   backend,
+		allowed:   map[string]Device{},
+		inhibited: true,
+		conns:     map[*appConn]struct{}{},
+		done:      make(chan struct{}),
 	}
 	go s.pushEvents()
 	return s
@@ -264,7 +283,7 @@ func (s *Server) dispatch(req request) reply {
 	case "health":
 		s.mu.Lock()
 		defer s.mu.Unlock()
-		return reply{ID: req.ID, OK: true, Result: map[string]any{"backend": s.backend.Name(), "synced": s.synced}}
+		return reply{ID: req.ID, OK: true, Result: map[string]any{"backend": s.backend.Name(), "synced": s.synced, "inhibited": s.inhibited}}
 	case "sync":
 		return s.sync(req)
 	case "allow":
@@ -275,6 +294,8 @@ func (s *Server) dispatch(req request) reply {
 		return s.setSpeedCap(req)
 	case "lookup_mac":
 		return s.lookupMAC(req)
+	case "set_inhibit":
+		return s.setInhibit(req)
 	default:
 		return reply{ID: req.ID, Error: &Error{Code: "unknown_method", Message: "unknown method " + req.Method}}
 	}
@@ -406,6 +427,32 @@ func (s *Server) lookupMAC(req request) reply {
 		return failure(req, "unknown_ip", "no Device holds "+ip)
 	}
 	return success(req, map[string]any{"mac": mac})
+}
+
+// setInhibit turning the inhibit line on works before the first sync too:
+// it is on then anyway. Turning it off waits for the first sync, so no coin
+// is taken before the app is ready to credit it.
+func (s *Server) setInhibit(req request) reply {
+	var params struct {
+		On *bool `json:"on"`
+	}
+	if err := decodeParams(req, &params); err != nil {
+		return failure(req, "bad_request", err.Error())
+	}
+	if params.On == nil {
+		return failure(req, "bad_request", "on is required: true inhibits the Coin Acceptor, false enables it")
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if !*params.On && !s.synced {
+		return failure(req, "not_synced", "the Coin Acceptor stays inhibited until the first sync")
+	}
+	if err := s.backend.SetInhibit(*params.On); err != nil {
+		return failure(req, "backend_failed", err.Error())
+	}
+	s.inhibited = *params.On
+	return success(req, nil)
 }
 
 func notSynced(req request) reply {
