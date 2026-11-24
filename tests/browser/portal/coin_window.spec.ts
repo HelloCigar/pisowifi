@@ -168,6 +168,23 @@ test.group('Coin Window', (group) => {
     await page.assertVisible(page.getByText('1 oras', { exact: true }))
   })
 
+  test('shows the holder its coins after the close time, until the window is closed', async ({
+    visit,
+    route,
+  }) => {
+    freezeTime()
+    const helper = await useSyncedFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+    await insertCoin(page)
+    await helper.sendCoin(5)
+    timeTravel('61s')
+    await page.reload()
+
+    await page.assertVisible(page.getByText('₱5', { exact: true }))
+  })
+
   test('keeps the window open while coins keep coming', async ({ visit, route }) => {
     freezeTime()
     const helper = await useSyncedFakeHelperClient()
