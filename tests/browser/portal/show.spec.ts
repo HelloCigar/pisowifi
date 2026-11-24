@@ -18,6 +18,15 @@ test.group('Portal', (group) => {
     )
   })
 
+  test('shows the hotspot name the Operator set', async ({ visit, route }) => {
+    const helper = useFakeHelperClient()
+    helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
+
+    const page = await visit(route('portal'))
+
+    await page.assertVisible(page.getByRole('banner').getByText('Aling Nena WiFi', { exact: true }))
+  })
+
   test('shows the MAC address of the Device in the form the helper sends', async ({
     visit,
     route,

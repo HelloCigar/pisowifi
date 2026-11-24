@@ -1,6 +1,5 @@
 import app from '@adonisjs/core/services/app'
 import { errors as authErrors } from '@adonisjs/auth'
-import { errors as limiterErrors } from '@adonisjs/limiter'
 import { type HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import type { StatusPageRange, StatusPageRenderer } from '@adonisjs/core/types/http'
 
@@ -39,20 +38,6 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     if (error instanceof authErrors.E_INVALID_CREDENTIALS) {
       ctx.session.flashExcept(['_csrf', '_method', 'password'])
       ctx.session.flashInputErrors({ email: error.getResponseMessage(error, ctx) })
-      return ctx.response.redirect().back()
-    }
-
-    /**
-     * The limiter answers with a plain-text 429, which an Inertia form
-     * cannot show. Send the visitor back to the form with the message
-     * instead.
-     */
-    if (error instanceof limiterErrors.E_TOO_MANY_REQUESTS && ctx.request.header('x-inertia')) {
-      const minutes = Math.ceil(error.response.availableIn / 60)
-      ctx.session.flash(
-        'error',
-        `Too many attempts. Try again in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}.`
-      )
       return ctx.response.redirect().back()
     }
 

@@ -36,4 +36,19 @@ test.group('Adding a Rate Tier', (group) => {
     )
     await db.assertCount('rate_tiers', 1)
   })
+
+  test('refuses a price over ₱10,000', async ({ visit, route, browserContext, db }) => {
+    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
+    await browserContext.loginAs(operator)
+
+    const page = await visit(route('admin.rate_tiers.create'))
+    await page.getByLabel('Price (₱)', { exact: true }).fill('1e308')
+    await page.getByLabel('Minutes', { exact: true }).fill('60')
+    await page.getByRole('button', { name: 'Save', exact: true }).click()
+
+    await page.assertVisible(
+      page.getByText('The price field must be between 1 and 10000', { exact: true })
+    )
+    await db.assertEmpty('rate_tiers')
+  })
 })

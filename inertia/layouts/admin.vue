@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import { useRouter } from '@adonisjs/inertia/vue'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { urlFor } from '~/client'
@@ -10,6 +11,7 @@ import { urlFor } from '~/client'
  */
 const open = ref(false)
 const router = useRouter()
+const page = usePage()
 
 function close() {
   open.value = false
@@ -48,7 +50,7 @@ function logout() {
       <template #header="{ collapsed }">
         <div class="flex items-center gap-2 px-2.5 font-semibold text-highlighted">
           <UIcon name="i-lucide-wifi" class="size-5 shrink-0 text-primary" />
-          <span v-if="!collapsed">Piso WiFi</span>
+          <span v-if="!collapsed">{{ page.props.hotspotName ?? 'Piso WiFi' }}</span>
         </div>
       </template>
 

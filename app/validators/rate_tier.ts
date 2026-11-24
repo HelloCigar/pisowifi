@@ -2,14 +2,14 @@ import vine from '@vinejs/vine'
 import Money from '#money/money'
 
 /**
- * Adding a Rate Tier. The price is a whole number of pesos, and no other
- * Rate Tier may have it.
+ * Adding a Rate Tier. The price is a whole number of pesos up to ₱10,000,
+ * and no other Rate Tier may have it. A Rate Tier buys at most 30 days.
  */
 export const createRateTierValidator = vine.create({
   price: vine
     .number()
     .withoutDecimals()
-    .positive()
+    .range([1, 10_000])
     .unique(async (db, value) => {
       const taken = await db
         .from('rate_tiers')
@@ -17,7 +17,7 @@ export const createRateTierValidator = vine.create({
         .first()
       return !taken
     }),
-  minutes: vine.number().withoutDecimals().positive(),
+  minutes: vine.number().withoutDecimals().range([1, 43_200]),
 })
 
 /**
@@ -28,7 +28,7 @@ export const updateRateTierValidator = vine.withMetaData<{ rateTierId: number }>
   price: vine
     .number()
     .withoutDecimals()
-    .positive()
+    .range([1, 10_000])
     .unique(async (db, value, field) => {
       const taken = await db
         .from('rate_tiers')
@@ -37,5 +37,5 @@ export const updateRateTierValidator = vine.withMetaData<{ rateTierId: number }>
         .first()
       return !taken
     }),
-  minutes: vine.number().withoutDecimals().positive(),
+  minutes: vine.number().withoutDecimals().range([1, 43_200]),
 })

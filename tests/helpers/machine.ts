@@ -5,5 +5,5 @@ import Setting from '#models/setting'
  * portal serves Customers.
  */
 export async function finishSetup() {
-  await Setting.createWithDefaults('Piso WiFi')
+  await Setting.createWithDefaults('Aling Nena WiFi')
 }

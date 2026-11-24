@@ -48,6 +48,43 @@ test.group('Operator login', (group) => {
     )
     await page.assertPath(route('admin.session.create'))
   })
+  test('blocks an IP address after repeated failures across emails', async ({ visit, route }) => {
+    await User.create({ email: 'operator@example.com', password: 'secret1234' })
+
+    for (let attempt = 1; attempt <= 10; attempt++) {
+      const failedPage = await visit(route('admin.session.create'))
+      await logIn(failedPage, `guess${attempt}@example.com`, 'wrong-password')
+      await failedPage.assertVisible(
+        failedPage.getByText('Invalid user credentials', { exact: true })
+      )
+    }
+
+    const page = await visit(route('admin.session.create'))
+    await logIn(page, 'operator@example.com', 'secret1234')
+
+    await page.assertVisible(page.getByText(/^Too many attempts\. Try again in \d+ minutes?\.$/))
+    await page.assertPath(route('admin.session.create'))
+  })
+
+  test('forgets earlier failures once the Operator logs in', async ({ visit, route }) => {
+    await User.create({ email: 'operator@example.com', password: 'secret1234' })
+
+    for (let round = 1; round <= 2; round++) {
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        const failedPage = await visit(route('admin.session.create'))
+        await logIn(failedPage, 'operator@example.com', 'wrong-password')
+        await failedPage.assertVisible(
+          failedPage.getByText('Invalid user credentials', { exact: true })
+        )
+      }
+
+      const page = await visit(route('admin.session.create'))
+      await logIn(page, 'operator@example.com', 'secret1234')
+      await page.assertPath(route('admin.dashboard'))
+      await page.getByRole('button', { name: 'Log out', exact: true }).click()
+      await page.assertPath(route('admin.session.create'))
+    }
+  })
 })
 
 test.group('Operator logout', (group) => {

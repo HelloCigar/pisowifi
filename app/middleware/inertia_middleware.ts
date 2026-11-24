@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
+import Setting from '#models/setting'
 import UserTransformer from '#transformers/user_transformer'
 import { PortalLanguage } from '#values/portal_language'
 import BaseInertiaMiddleware from '@adonisjs/inertia/inertia_middleware'
@@ -28,6 +29,14 @@ export default class InertiaMiddleware extends BaseInertiaMiddleware {
        * The admin panel is always in English.
        */
       portalLanguage: session?.get('portal_language', PortalLanguage.Filipino) as PortalLanguage,
+      /**
+       * The hotspot name the Operator set in the setup wizard, shown in the
+       * portal's header and the admin sidebar. Null until setup is done.
+       */
+      hotspotName: async () => {
+        const settings = await Setting.current()
+        return settings?.data.hotspotName ?? null
+      },
     }
   }
 
