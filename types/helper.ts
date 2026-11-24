@@ -24,11 +24,29 @@ export type AllowedDevice = {
 }
 
 /**
+ * What the app wants the helper to hold. The client sends it each time it
+ * connects, because a restarted helper blocks every Device and turns the
+ * inhibit line on.
+ */
+export type HelperState = {
+  /**
+   * The Devices to allow, sent as `sync`.
+   */
+  devices: AllowedDevice[]
+  /**
+   * Whether the Coin Acceptor's inhibit line should be on. It is off only
+   * while a Coin Window is open.
+   */
+  inhibited: boolean
+}
+
+/**
  * What a `health` request reports.
  */
 export type HelperHealth = {
   backend: string
   synced: boolean
+  inhibited: boolean
 }
 
 /**
@@ -37,6 +55,7 @@ export type HelperHealth = {
 export type HelperEvent =
   | { event: 'device_online'; data: { mac: string; ip: string } }
   | { event: 'device_offline'; data: { mac: string } }
+  | { event: 'coin'; data: { pesos: number } }
 
 /**
  * The helper's answer to one request, matched to it by `id`.

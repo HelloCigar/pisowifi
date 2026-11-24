@@ -3,10 +3,12 @@
  * DO NOT EDIT manually
  */
 
+import CoinAccepted from '#events/coin_accepted'
 import DeviceCameOnline from '#events/device_came_online'
 import DeviceWentOffline from '#events/device_went_offline'
 
 export const events = {
+  CoinAccepted: CoinAccepted,
   DeviceCameOnline: DeviceCameOnline,
   DeviceWentOffline: DeviceWentOffline,
 }

@@ -4,5 +4,6 @@
  */
 
 export const listeners = {
+  RecordCoin: () => import('#listeners/record_coin'),
   RecordDeviceSighting: () => import('#listeners/record_device_sighting'),
 }

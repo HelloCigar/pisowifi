@@ -6,12 +6,23 @@
 /// <reference path="./manifest.d.ts" />
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
 import type { InferSharedProps, InferFlashData } from '@adonisjs/inertia/types'
+import type CoinWindowTransformer from '#transformers/coin_window_transformer'
+import type CreditTransformer from '#transformers/credit_transformer'
 import type DeviceTransformer from '#transformers/device_transformer'
 import type RateTierTransformer from '#transformers/rate_tier_transformer'
+import type TopUpTransformer from '#transformers/top_up_transformer'
 import type UserTransformer from '#transformers/user_transformer'
 import type InertiaMiddleware from '#middleware/inertia_middleware'
 
 export namespace Data {
+  export type CoinWindow = InferData<CoinWindowTransformer>
+  export namespace CoinWindow {
+    export type Variants = InferVariants<CoinWindowTransformer>
+  }
+  export type Credit = InferData<CreditTransformer>
+  export namespace Credit {
+    export type Variants = InferVariants<CreditTransformer>
+  }
   export type Device = InferData<DeviceTransformer>
   export namespace Device {
     export type Variants = InferVariants<DeviceTransformer>
@@ -19,6 +30,10 @@ export namespace Data {
   export type RateTier = InferData<RateTierTransformer>
   export namespace RateTier {
     export type Variants = InferVariants<RateTierTransformer>
+  }
+  export type TopUp = InferData<TopUpTransformer>
+  export namespace TopUp {
+    export type Variants = InferVariants<TopUpTransformer>
   }
   export type User = InferData<UserTransformer>
   export namespace User {

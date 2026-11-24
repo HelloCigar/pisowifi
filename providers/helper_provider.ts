@@ -28,8 +28,26 @@ export default class HelperProvider {
     }
 
     const client = await this.app.container.make(HelperClient)
-    // No Credits exist yet, so no Device is allowed.
-    await client.start(async () => [])
+    await client.start(async () => {
+      const { default: Credit } = await import('#models/credit')
+      const { default: Setting } = await import('#models/setting')
+      const { default: CoinWindow } = await import('#models/coin_window')
+      const settings = await Setting.current()
+      if (!settings) {
+        return { devices: [], inhibited: true }
+      }
+
+      const credits = await Credit.countingDown().preload('device')
+      const window = await CoinWindow.open()
+      return {
+        devices: credits.map((credit) => ({
+          mac: credit.device.macAddress,
+          ip: credit.device.lastIpAddress,
+          speedCap: settings.speedCap,
+        })),
+        inhibited: !window || window.hasTimedOut,
+      }
+    })
   }
 
   async shutdown() {

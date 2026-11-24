@@ -1,7 +1,7 @@
 import logger from '@adonisjs/core/services/logger'
 import HelperClient from '#services/helper_client'
 import HelperException from '#exceptions/helper_exception'
-import type { AllowedDevice, SpeedCap } from '#types/helper'
+import type { AllowedDevice, HelperState, SpeedCap } from '#types/helper'
 
 /**
  * A working, in-memory stand-in for the privileged helper, for tests. It
@@ -20,8 +20,21 @@ export default class FakeHelperClient extends HelperClient {
    */
   lastSync: AllowedDevice[] | null = null
 
+  /**
+   * Whether the Coin Acceptor's inhibit line is on. It is on from startup,
+   * so the Coin Acceptor rejects coins until the app turns it off.
+   */
+  inhibited = true
+
+  /**
+   * The fake sends a coin in flight while it turns the inhibit line on, so
+   * the app need not wait for it.
+   */
+  coinSettleMs = 0
+
   #macsByIp = new Map<string, string>()
   #down = false
+  #coinsInFlight: number[] = []
 
   constructor() {
     super(undefined, logger)
@@ -58,11 +71,29 @@ export default class FakeHelperClient extends HelperClient {
   }
 
   /**
-   * Sends `sync` with the allow list, as the real client does when it
-   * connects.
+   * Sends `coin`, as the helper does when the Coin Acceptor accepts a coin.
+   * Like the helper, it sends every coin, whatever the inhibit line says.
    */
-  async start(allowList: () => Promise<AllowedDevice[]>) {
-    await this.sync(await allowList())
+  async sendCoin(pesos: number) {
+    await this.deliver({ event: 'coin', data: { pesos } })
+  }
+
+  /**
+   * Drops a coin whose pulse train is still running when the inhibit line
+   * next goes on, as when a Customer taps Done right after inserting it. The
+   * helper sends its `coin` event after the line is on; the fake sends it
+   * as it turns the line on.
+   */
+  dropCoinInFlight(pesos: number) {
+    this.#coinsInFlight.push(pesos)
+  }
+
+  /**
+   * Sends `sync` and restores the inhibit line, as the real client does
+   * when it connects.
+   */
+  async start(state: () => Promise<HelperState>) {
+    await this.restore(await state())
   }
 
   async stop() {}
@@ -74,7 +105,7 @@ export default class FakeHelperClient extends HelperClient {
 
     switch (method) {
       case 'health':
-        return { backend: 'fake', synced: this.lastSync !== null }
+        return { backend: 'fake', synced: this.lastSync !== null, inhibited: this.inhibited }
       case 'sync':
         return this.#sync(params.devices)
       case 'allow':
@@ -86,6 +117,8 @@ export default class FakeHelperClient extends HelperClient {
         return this.#setSpeedCap(params.mac, params.speed_cap)
       case 'lookup_mac':
         return this.#lookupMac(params.ip)
+      case 'set_inhibit':
+        return this.#setInhibit(params.on)
       default:
         throw new HelperException('unknown_method', `unknown method ${method}`)
     }
@@ -110,6 +143,25 @@ export default class FakeHelperClient extends HelperClient {
       throw new HelperException('not_allowed', `Device ${mac} is blocked`)
     }
     device.speedCap = this.#speedCap(speedCap)
+  }
+
+  async #setInhibit(on: unknown) {
+    if (typeof on !== 'boolean') {
+      throw new HelperException('bad_request', 'on must be a boolean')
+    }
+    if (!on) {
+      this.#assertSynced()
+    }
+    this.inhibited = on
+    if (!on) {
+      return
+    }
+
+    const inFlight = this.#coinsInFlight
+    this.#coinsInFlight = []
+    for (const pesos of inFlight) {
+      await this.sendCoin(pesos)
+    }
   }
 
   #lookupMac(ip: string) {

@@ -11,5 +11,14 @@ export default {
         },
       },
     },
+    credits: {
+      columns: {
+        state: {
+          tsType: 'CreditState',
+          decorators: [{ name: '@column' }],
+          imports: [{ source: '#values/credit_state', typeImports: ['CreditState'] }],
+        },
+      },
+    },
   },
 } satisfies SchemaRules

@@ -12,3 +12,4 @@ import { events } from '#generated/events'
 import { listeners } from '#generated/listeners'
 
 emitter.on(events.DeviceCameOnline, [listeners.RecordDeviceSighting])
+emitter.on(events.CoinAccepted, [listeners.RecordCoin])

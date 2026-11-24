@@ -21,6 +21,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/show_portal_controller').default['handle']>>>
     }
   }
+  'coin_window.store': {
+    methods: ["POST"]
+    pattern: '/coin_window'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/coin_windows_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/coin_windows_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/coin_windows_controller').default['store']>>>
+    }
+  }
+  'coin_window.destroy': {
+    methods: ["DELETE"]
+    pattern: '/coin_window'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/coin_windows_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/coin_windows_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/coin_windows_controller').default['destroy']>>>
+    }
+  }
   'portal_language.update': {
     methods: ["PUT"]
     pattern: '/language'

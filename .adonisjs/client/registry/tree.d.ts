@@ -3,6 +3,10 @@ import type { routes } from './index.ts'
 
 export interface ApiDefinition {
   portal: typeof routes['portal']
+  coinWindow: {
+    store: typeof routes['coin_window.store']
+    destroy: typeof routes['coin_window.destroy']
+  }
   portalLanguage: {
     update: typeof routes['portal_language.update']
   }
