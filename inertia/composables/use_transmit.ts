@@ -47,9 +47,9 @@ export function useTransmit<T>(channel: MaybeRefOrGetter<string>, handler: (mess
 }
 
 /**
- * Calls `handler` each time the live connection comes back after it was lost,
- * while the component is mounted. Messages sent while it was down are not
- * replayed, so a page re-reads what it shows here.
+ * Calls `handler` each time the live connection comes back after it was
+ * lost, while the component is mounted. Messages sent while it was down are
+ * not replayed, so a page re-reads what it shows here.
  */
 export function useTransmitReconnect(handler: () => void) {
   let lost = false

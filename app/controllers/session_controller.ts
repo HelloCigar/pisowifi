@@ -3,7 +3,9 @@ import { loginValidator } from '#validators/user'
 import limiter from '@adonisjs/limiter/services/main'
 import type { HttpContext } from '@adonisjs/core/http'
 
-/** The Operator's session in the admin panel: logging in and out. */
+/**
+ * The Operator's session in the admin panel: logging in and out.
+ */
 export default class SessionController {
   async create({ inertia, response }: HttpContext) {
     if (!(await User.operatorExists())) {

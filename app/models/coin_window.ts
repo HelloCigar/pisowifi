@@ -9,9 +9,9 @@ import Coin from '#models/coin'
 import Money from '#money/money'
 
 /**
- * A short period in which one Device holds the Coin Acceptor. It is open until
- * it is closed, by the Customer tapping Done or by timing out at `closesAt`.
- * Each coin moves `closesAt` to now plus the Coin Window length.
+ * A short period in which one Device holds the Coin Acceptor. It is open
+ * until it is closed, by the Customer tapping Done or by timing out at
+ * `closesAt`. Each coin moves `closesAt` to now plus the Coin Window length.
  */
 export default class CoinWindow extends CoinWindowSchema {
   @belongsTo(() => Device)
@@ -41,19 +41,23 @@ export default class CoinWindow extends CoinWindowSchema {
   }
 
   /**
-   * Whether the close time has passed. The window still holds the Coin Acceptor
-   * until it is closed, but it takes no more time from new coins.
+   * Whether the close time has passed. The window still holds the Coin
+   * Acceptor until it is closed, but it takes no more time from new coins.
    */
   get hasTimedOut() {
     return this.closesAt <= DateTime.now()
   }
 
-  /** The money inserted during the window. Preload `coins`. */
+  /**
+   * The money inserted during the window. Preload `coins`.
+   */
   get inserted() {
     return new Money(this.coins.reduce((sum, coin) => sum + coin.amountCentavos, 0))
   }
 
-  /** Whole seconds until the window times out, never below zero. */
+  /**
+   * Whole seconds until the window times out, never below zero.
+   */
   get secondsLeft() {
     return Math.max(0, Math.ceil(this.closesAt.diffNow('seconds').seconds))
   }

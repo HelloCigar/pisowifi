@@ -8,8 +8,8 @@ import type { HttpContext } from '@adonisjs/core/http'
  * The Operator's Rate Tiers.
  *
  * Every touch here is global on purpose: the Rate Tiers belong to the whole
- * Machine, which its one Operator owns, and the auth middleware lets only that
- * Operator in.
+ * Machine, which its one Operator owns, and the auth middleware lets only
+ * that Operator in.
  */
 export default class RateTiersController {
   async index({ inertia }: HttpContext) {
@@ -28,10 +28,7 @@ export default class RateTiersController {
   async store({ request, response, session }: HttpContext) {
     const { price, minutes } = await request.validateUsing(createRateTierValidator)
 
-    await RateTier.create({
-      priceCentavos: Money.fromPesos(price).centavos,
-      minutes,
-    })
+    await RateTier.create({ priceCentavos: Money.fromPesos(price).centavos, minutes })
 
     session.flash('success', 'Rate Tier added')
     return response.redirect().toRoute('admin.rate_tiers.index')

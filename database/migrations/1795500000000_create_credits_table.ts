@@ -1,8 +1,8 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 /**
- * The paid internet time a Customer still has. It is reached through the Device
- * that holds it, never through its MAC address (ADR 0003).
+ * The paid internet time a Customer still has. It is reached through the
+ * Device that holds it, never through its MAC address (ADR 0003).
  */
 export default class extends BaseSchema {
   protected tableName = 'credits'

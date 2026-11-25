@@ -11,8 +11,8 @@ import HelperClient from '#services/helper_client'
 
 /**
  * The setup wizard a newly installed Machine boots into. It creates the
- * Operator, the settings and the first Rate Tiers, and closes for good once an
- * Operator exists. Its first step is the Coin Acceptor test
+ * Operator, the settings and the first Rate Tiers, and closes for good once
+ * an Operator exists. Its first step is the Coin Acceptor test
  * (CoinTestsController).
  */
 @inject()

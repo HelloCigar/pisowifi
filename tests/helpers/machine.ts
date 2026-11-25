@@ -3,8 +3,8 @@ import RateTier from '#models/rate_tier'
 
 /**
  * Puts the Machine past its setup wizard, as the wizard leaves it, so the
- * portal serves Customers: the default settings and one Rate Tier of ₱5 for 60
- * minutes.
+ * portal serves Customers: the default settings and one Rate Tier of ₱5 for
+ * 60 minutes.
  */
 export async function finishSetup() {
   await Setting.createWithDefaults('Aling Nena WiFi')

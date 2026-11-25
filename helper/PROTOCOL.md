@@ -45,10 +45,7 @@ A line that is not valid JSON gets a `bad_request` reply with `"id": null`.
 **Event** (helper → app), pushed as it happens to every connected app. It has `event` and no `id`:
 
 ```json
-{
-  "event": "device_online",
-  "data": { "mac": "aa:bb:cc:00:00:01", "ip": "10.0.0.11" }
-}
+{ "event": "device_online", "data": { "mac": "aa:bb:cc:00:00:01", "ip": "10.0.0.11" } }
 ```
 
 ## Values

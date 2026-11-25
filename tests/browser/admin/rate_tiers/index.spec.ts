@@ -7,10 +7,7 @@ test.group('Rate Tiers list', (group) => {
   group.each.setup(() => testUtils.db().truncate())
 
   test('shows each Rate Tier with its price and time', async ({ visit, route, browserContext }) => {
-    const operator = await User.create({
-      email: 'operator@example.com',
-      password: 'secret1234',
-    })
+    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
     await RateTier.create({ priceCentavos: 500, minutes: 60 })
     await RateTier.create({ priceCentavos: 2000, minutes: 330 })
     await browserContext.loginAs(operator)
@@ -24,10 +21,7 @@ test.group('Rate Tiers list', (group) => {
   })
 
   test('says when there are no Rate Tiers', async ({ visit, route, browserContext }) => {
-    const operator = await User.create({
-      email: 'operator@example.com',
-      password: 'secret1234',
-    })
+    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
     await browserContext.loginAs(operator)
 
     const page = await visit(route('admin.rate_tiers.index'))

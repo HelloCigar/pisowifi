@@ -11,7 +11,9 @@ defineOptions({ layout: AuthLayout })
  * `setupValidator` (app/validators/setup.ts).
  */
 
-/** One key per Rate Tier row, so removing a row keeps the others' inputs. */
+/**
+ * One key per Rate Tier row, so removing a row keeps the others' inputs.
+ */
 let nextKey = 1
 const tierKeys = ref<number[]>([nextKey])
 
@@ -24,7 +26,9 @@ function removeTier(index: number) {
   tierKeys.value.splice(index, 1)
 }
 
-/** Read the server-side validation error of a field */
+/**
+ * Read the server-side validation error of a field
+ */
 function errorOf(errors: object, name: string) {
   return (errors as Record<string, string | undefined>)[name]
 }

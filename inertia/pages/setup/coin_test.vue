@@ -18,8 +18,8 @@ interface TestCoin {
 }
 
 /**
- * The coins counted while this page is open, newest first. They exist only to
- * show the Operator the count; the Machine does not keep them.
+ * The coins counted while this page is open, newest first. They exist only
+ * to show the Operator the count; the Machine does not keep them.
  */
 const coins = ref<TestCoin['value'][]>([])
 const { subscribed } = useTransmit<TestCoin>(

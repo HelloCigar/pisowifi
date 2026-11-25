@@ -13,9 +13,9 @@ function close() {
 }
 
 /**
- * Sidebar navigation between the layout templates (see docs/templates.md). URLs
- * are generated from named AdonisJS routes, so renaming a route path never
- * breaks the sidebar.
+ * Sidebar navigation between the layout templates (see docs/templates.md).
+ * URLs are generated from named AdonisJS routes, so renaming a route
+ * path never breaks the sidebar.
  */
 const links = [
   [

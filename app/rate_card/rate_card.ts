@@ -1,7 +1,9 @@
 import type Money from '#money/money'
 import type { PricedTier } from '#types/rate_card'
 
-/** The Operator's Rate Tiers, used together to price a Top-up. */
+/**
+ * The Operator's Rate Tiers, used together to price a Top-up.
+ */
 export default class RateCard {
   readonly tiers: readonly PricedTier[]
 
@@ -13,8 +15,8 @@ export default class RateCard {
   }
 
   /**
-   * The tier with the lowest price. Any amount the tiers can't cover is priced
-   * at its rate.
+   * The tier with the lowest price. Any amount the tiers can't cover is
+   * priced at its rate.
    */
   get cheapestTier() {
     return this.tiers.reduce((cheapest, tier) =>
@@ -23,11 +25,11 @@ export default class RateCard {
   }
 
   /**
-   * The seconds of internet time an amount buys. The amount is split into Rate
-   * Tiers, each usable more than once, and what is left is priced pro rata at
-   * the cheapest tier's rate. Of all such splits, the one that buys the most
-   * time wins, so no peso is wasted and six ₱1 coins buy at least as much as a
-   * ₱5 and a ₱1 coin.
+   * The seconds of internet time an amount buys. The amount is split into
+   * Rate Tiers, each usable more than once, and what is left is priced pro
+   * rata at the cheapest tier's rate. Of all such splits, the one that buys
+   * the most time wins, so no peso is wasted and six ₱1 coins buy at least
+   * as much as a ₱5 and a ₱1 coin.
    */
   secondsFor(amount: Money) {
     const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))

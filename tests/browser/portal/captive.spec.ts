@@ -5,8 +5,8 @@ import { finishSetup } from '#tests/helpers/machine'
 import { useFakeHelperClient } from '#tests/helpers/helper_client'
 
 /**
- * The browser resolves every host name to the test server, as dnsmasq does for
- * a blocked Device on the Machine (see tests/bootstrap.ts).
+ * The browser resolves every host name to the test server, as dnsmasq does
+ * for a blocked Device on the Machine (see tests/bootstrap.ts).
  */
 const port = env.get('PORT')
 

@@ -4,12 +4,12 @@ import { usePage } from '@inertiajs/vue3'
 import { Duration } from 'luxon'
 
 /**
- * A time span from the server, such as a Coin Window's `closesIn`, as it counts
- * down in the browser: once a second, from when the page received it. Each new
- * value from the server, after a coin or a reload, starts it again.
+ * A time span from the server, such as a Coin Window's `closesIn`, as it
+ * counts down in the browser: once a second, from when the page received it.
+ * Each new value from the server, after a coin or a reload, starts it again.
  *
- * It counts from the browser's own clock, so a Machine whose clock is off does
- * not skew it.
+ * It counts from the browser's own clock, so a Machine whose clock is off
+ * does not skew it.
  */
 export function useCountdown(span: MaybeRefOrGetter<{ raw: number } | null | undefined>) {
   const page = usePage()

@@ -5,8 +5,8 @@ import CoinWindowService from '#services/coin_window_service'
 
 /**
  * Closes each Coin Window whose close time has passed, so a Customer who
- * forgets to tap Done still gets the coins credited. Closing a window that is
- * already closed does nothing, so a run can repeat safely.
+ * forgets to tap Done still gets the coins credited. Closing a window that
+ * is already closed does nothing, so a run can repeat safely.
  *
  * It runs in the web process, which holds the connection to the helper
  * (SCHEDULER_HTTP_SERVER=true): a Machine is one process.

@@ -5,26 +5,30 @@ import type { AllowedDevice, HelperState, SpeedCap } from '#types/helper'
 
 /**
  * A working, in-memory stand-in for the privileged helper, for tests. It
- * follows the contract in helper/PROTOCOL.md that the helper's Go tests check:
- * every Device stays blocked until the first `sync`, a blocked Device has no
- * speed cap, and an IP address no Device holds is unknown.
+ * follows the contract in helper/PROTOCOL.md that the helper's Go tests
+ * check: every Device stays blocked until the first `sync`, a blocked
+ * Device has no speed cap, and an IP address no Device holds is unknown.
  */
 export default class FakeHelperClient extends HelperClient {
-  /** The Devices the fake firewall lets through, by MAC address. */
+  /**
+   * The Devices the fake firewall lets through, by MAC address.
+   */
   allowed = new Map<string, AllowedDevice>()
 
-  /** The Devices of the last `sync`, or null before the first one. */
+  /**
+   * The Devices of the last `sync`, or null before the first one.
+   */
   lastSync: AllowedDevice[] | null = null
 
   /**
-   * Whether the Coin Acceptor's inhibit line is on. It is on from startup, so
-   * the Coin Acceptor rejects coins until the app turns it off.
+   * Whether the Coin Acceptor's inhibit line is on. It is on from startup,
+   * so the Coin Acceptor rejects coins until the app turns it off.
    */
   inhibited = true
 
   /**
-   * The fake sends a coin in flight while it turns the inhibit line on, so the
-   * app need not wait for it.
+   * The fake sends a coin in flight while it turns the inhibit line on, so
+   * the app need not wait for it.
    */
   coinSettleMs = 0
 
@@ -52,20 +56,18 @@ export default class FakeHelperClient extends HelperClient {
     this.#macsByIp.set(this.#normalizeIp(ip), this.#normalizeMac(mac))
   }
 
-  /** Sends `device_online`, as the helper does when a Device connects. */
+  /**
+   * Sends `device_online`, as the helper does when a Device connects.
+   */
   async sendDeviceOnline(mac: string, ip: string) {
-    await this.deliver({
-      event: 'device_online',
-      data: { mac: this.#normalizeMac(mac), ip },
-    })
+    await this.deliver({ event: 'device_online', data: { mac: this.#normalizeMac(mac), ip } })
   }
 
-  /** Sends `device_offline`, as the helper does when a Device leaves. */
+  /**
+   * Sends `device_offline`, as the helper does when a Device leaves.
+   */
   async sendDeviceOffline(mac: string) {
-    await this.deliver({
-      event: 'device_offline',
-      data: { mac: this.#normalizeMac(mac) },
-    })
+    await this.deliver({ event: 'device_offline', data: { mac: this.#normalizeMac(mac) } })
   }
 
   /**
@@ -77,18 +79,18 @@ export default class FakeHelperClient extends HelperClient {
   }
 
   /**
-   * Drops a coin whose pulse train is still running when the inhibit line next
-   * goes on, as when a Customer taps Done right after inserting it. The helper
-   * sends its `coin` event after the line is on; the fake sends it as it turns
-   * the line on.
+   * Drops a coin whose pulse train is still running when the inhibit line
+   * next goes on, as when a Customer taps Done right after inserting it. The
+   * helper sends its `coin` event after the line is on; the fake sends it
+   * as it turns the line on.
    */
   dropCoinInFlight(pesos: number) {
     this.#coinsInFlight.push(pesos)
   }
 
   /**
-   * Sends `sync` and restores the inhibit line, as the real client does when it
-   * connects.
+   * Sends `sync` and restores the inhibit line, as the real client does
+   * when it connects.
    */
   async start(state: () => Promise<HelperState>) {
     await this.restore(await state())
@@ -103,11 +105,7 @@ export default class FakeHelperClient extends HelperClient {
 
     switch (method) {
       case 'health':
-        return {
-          backend: 'fake',
-          synced: this.lastSync !== null,
-          inhibited: this.inhibited,
-        }
+        return { backend: 'fake', synced: this.lastSync !== null, inhibited: this.inhibited }
       case 'sync':
         return this.#sync(params.devices)
       case 'allow':
@@ -192,14 +190,16 @@ export default class FakeHelperClient extends HelperClient {
     return { downKbps: wire.down_kbps, upKbps: wire.up_kbps }
   }
 
-  /** The helper sends MAC addresses lower-case and colon-separated. */
+  /**
+   * The helper sends MAC addresses lower-case and colon-separated.
+   */
   #normalizeMac(mac: string) {
     return mac.toLowerCase().replaceAll('-', ':')
   }
 
   /**
-   * The helper reads an IPv4 address mapped into IPv6 as plain IPv4, as Go's
-   * net.ParseIP does.
+   * The helper reads an IPv4 address mapped into IPv6 as plain IPv4, as
+   * Go's net.ParseIP does.
    */
   #normalizeIp(ip: string) {
     return ip.replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/i, '')

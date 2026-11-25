@@ -4,19 +4,19 @@ import { DeviceSchema } from '#database/schema'
 
 export default class Device extends DeviceSchema {
   /**
-   * The Transmit channel of the Device's Coin Window: each coin it receives and
-   * its closing. Only the Device itself may subscribe (start/transmit.ts).
+   * The Transmit channel of the Device's Coin Window: each coin it receives
+   * and its closing. Only the Device itself may subscribe (start/transmit.ts).
    */
   static coinWindowChannel(deviceId: number) {
     return `devices/${deviceId}/coin_window`
   }
 
   /**
-   * Records that the Device with this MAC address was seen at this IP address
-   * just now, and returns it. The first sighting creates it.
+   * Records that the Device with this MAC address was seen at this IP
+   * address just now, and returns it. The first sighting creates it.
    *
-   * The MAC address comes from the helper, never from a request, so this touch
-   * has no scope: the MAC address is what identifies the Device.
+   * The MAC address comes from the helper, never from a request, so this
+   * touch has no scope: the MAC address is what identifies the Device.
    */
   static async recordSighting(macAddress: string, ipAddress: string) {
     // flow-allow models.md: updateOrCreate selects and then inserts, so two first requests

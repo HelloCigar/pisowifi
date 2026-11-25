@@ -1,7 +1,7 @@
 /**
  * Props passed from AdonisJS controllers to Inertia pages must be
- * JSON-serializable, so these are `type` aliases (not interfaces) made of plain
- * data. That keeps `inertia.render()` calls type-checked.
+ * JSON-serializable, so these are `type` aliases (not interfaces) made of
+ * plain data. That keeps `inertia.render()` calls type-checked.
  */
 export type Avatar = {
   src?: string

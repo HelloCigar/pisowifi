@@ -13,9 +13,7 @@ const text = usePortalText()
 
   <UPageCard variant="subtle" icon="i-lucide-circle-help">
     <template #title>
-      <h1 class="text-lg font-semibold text-highlighted">
-        {{ text.unknownDeviceTitle }}
-      </h1>
+      <h1 class="text-lg font-semibold text-highlighted">{{ text.unknownDeviceTitle }}</h1>
     </template>
     <template #description>
       {{ text.unknownDeviceBody }}

@@ -6,8 +6,8 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { urlFor } from '~/client'
 
 /**
- * The Operator's admin panel: a sidebar with the admin pages and the logout,
- * and the page beside it. The admin panel is always in English.
+ * The Operator's admin panel: a sidebar with the admin pages and the
+ * logout, and the page beside it. The admin panel is always in English.
  */
 const open = ref(false)
 const router = useRouter()

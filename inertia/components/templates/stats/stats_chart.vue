@@ -45,10 +45,7 @@ watch(
     const amounts = dates.map(() => randomInt(1000, 7000))
     amounts[randomInt(0, amounts.length - 1)] = randomInt(7100, 7200)
 
-    data.value = dates.map((date, i) => ({
-      date: formatDate(date),
-      amount: amounts[i]!,
-    }))
+    data.value = dates.map((date, i) => ({ date: formatDate(date), amount: amounts[i]! }))
   },
   { immediate: true }
 )
@@ -57,12 +54,7 @@ const total = computed(() => data.value.reduce((acc: number, { amount }) => acc 
 </script>
 
 <template>
-  <UCard
-    :ui="{
-      root: 'overflow-visible',
-      body: 'p-0! overflow-hidden rounded-b-[inherit]',
-    }"
-  >
+  <UCard :ui="{ root: 'overflow-visible', body: 'p-0! overflow-hidden rounded-b-[inherit]' }">
     <template #header>
       <div>
         <p class="text-xs text-muted uppercase mb-1.5">Revenue</p>

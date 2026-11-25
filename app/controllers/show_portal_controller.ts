@@ -9,8 +9,8 @@ import { PortalLanguage } from '#values/portal_language'
 import { LiveChannel } from '#values/live_channel'
 
 /**
- * The portal's home page for the Device that is browsing: its Credit, its Coin
- * Window, or who holds the Coin Acceptor.
+ * The portal's home page for the Device that is browsing: its Credit, its
+ * Coin Window, or who holds the Coin Acceptor.
  */
 export default class ShowPortalController {
   async handle({ inertia, device, session }: HttpContext) {

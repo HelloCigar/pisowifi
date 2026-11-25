@@ -1,4 +1,6 @@
-/** The languages of the portal. Filipino is the default. */
+/**
+ * The languages of the portal. Filipino is the default.
+ */
 export const PortalLanguage = {
   Filipino: 'fil',
   English: 'en',

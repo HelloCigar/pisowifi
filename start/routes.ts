@@ -14,7 +14,9 @@ import app from '@adonisjs/core/services/app'
 import router from '@adonisjs/core/services/router'
 import transmit from '@adonisjs/transmit/services/main'
 
-/** The portal: the Customer-facing pages, at the root of the Hotspot Network. */
+/**
+ * The portal: the Customer-facing pages, at the root of the Hotspot Network.
+ */
 router
   .group(() => {
     router.get('/', [controllers.ShowPortal]).as('portal')
@@ -41,8 +43,8 @@ router.delete('setup/coin_test', [controllers.CoinTests, 'destroy']).as('coin_te
 transmit.registerRoutes()
 
 /**
- * The admin panel: the Operator-facing pages. Every page but the login needs a
- * signed-in Operator.
+ * The admin panel: the Operator-facing pages. Every page but the login
+ * needs a signed-in Operator.
  */
 router
   .group(() => {
@@ -68,9 +70,9 @@ router
   .as('admin')
 
 /**
- * Layout templates from the starter kit, kept as working pages to copy from.
- * They exist only outside production. See docs/templates.md. The signup
- * template is also how a developer creates a user locally.
+ * Layout templates from the starter kit, kept as working pages to copy
+ * from. They exist only outside production. See docs/templates.md.
+ * The signup template is also how a developer creates a user locally.
  */
 if (!app.inProduction) {
   router
@@ -98,7 +100,7 @@ if (!app.inProduction) {
 }
 
 /**
- * The captive catch-all, registered last. Any other path, such as an operating
- * system's connectivity check, is sent to the portal.
+ * The captive catch-all, registered last. Any other path, such as an
+ * operating system's connectivity check, is sent to the portal.
  */
 router.any('*', [controllers.RedirectToPortal]).as('captive')

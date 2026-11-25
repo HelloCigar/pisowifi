@@ -2,8 +2,8 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 
 /**
  * The Machine's settings: one row, which the setup wizard creates. The app
- * reads and writes its values as a whole, so they live in one typed JSON column
- * (see `MachineSettings` in types/settings.ts).
+ * reads and writes its values as a whole, so they live in one typed JSON
+ * column (see `MachineSettings` in types/settings.ts).
  */
 export default class extends BaseSchema {
   protected tableName = 'settings'

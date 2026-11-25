@@ -38,7 +38,9 @@ const neutrals = ['slate', 'gray', 'zinc', 'neutral', 'stone', 'taupe', 'mauve',
 const page = usePage()
 const router = useRouter()
 
-/** The authenticated user is shared with every page by the Inertia middleware */
+/**
+ * The authenticated user is shared with every page by the Inertia middleware
+ */
 const user = computed(() => {
   const name = page.props.user?.fullName || page.props.user?.email || ''
   return {
@@ -187,9 +189,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
   <UDropdownMenu
     :items="items"
     :content="{ align: 'center', collisionPadding: 12 }"
-    :ui="{
-      content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)',
-    }"
+    :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }"
   >
     <UButton
       v-bind="{

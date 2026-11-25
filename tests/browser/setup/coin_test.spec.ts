@@ -60,10 +60,7 @@ test.group('Setup wizard: Coin Acceptor test', (group) => {
 
   test('cannot be reached once an Operator exists', async ({ visit, route }) => {
     await useSyncedFakeHelperClient()
-    await User.create({
-      email: 'operator@example.com',
-      password: 'secret1234',
-    })
+    await User.create({ email: 'operator@example.com', password: 'secret1234' })
 
     const page = await visit(route('coin_test.create'))
 

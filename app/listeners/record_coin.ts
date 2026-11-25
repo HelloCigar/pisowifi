@@ -7,11 +7,11 @@ import CoinWindowService from '#services/coin_window_service'
 import { LiveChannel } from '#values/live_channel'
 
 /**
- * Records each coin the Coin Acceptor accepts, in the open Coin Window or as an
- * Orphan Coin.
+ * Records each coin the Coin Acceptor accepts, in the open Coin Window or as
+ * an Orphan Coin.
  *
- * Before setup is finished, a coin can only come from the setup wizard's Coin
- * Acceptor test. It is shown to the wizard and not recorded: it is the
+ * Before setup is finished, a coin can only come from the setup wizard's
+ * Coin Acceptor test. It is shown to the wizard and not recorded: it is the
  * Operator's own coin, not takings.
  */
 @inject()

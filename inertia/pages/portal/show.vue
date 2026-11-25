@@ -22,12 +22,12 @@ const props = defineProps<{
 const text = usePortalText()
 
 /**
- * The Device's Coin Window and the Coin Acceptor push a message on each change:
- * a coin, a window opening or closing. The page then reloads what it shows, so
- * coins, the close time, the Credit and a freed Coin Acceptor appear without a
- * reload. As each subscription stands it reloads once too, for a change made on
- * that channel before it did, and again after the live connection comes back,
- * for the changes it missed.
+ * The Device's Coin Window and the Coin Acceptor push a message on each
+ * change: a coin, a window opening or closing. The page then reloads what
+ * it shows, so coins, the close time, the Credit and a freed Coin Acceptor
+ * appear without a reload. As each subscription stands it reloads once
+ * too, for a change made on that channel before it did, and again after
+ * the live connection comes back, for the changes it missed.
  */
 const reload = () => router.reload({ only: ['credit', 'coinWindow', 'coinAcceptorBusy'] })
 const ownWindow = useTransmit(() => props.coinWindowChannel, reload)
@@ -39,7 +39,9 @@ watch([ownWindow.subscribed, coinAcceptor.subscribed], (now, before) => {
 })
 useTransmitReconnect(reload)
 
-/** The time until the Coin Window closes, as it counts down between pushes. */
+/**
+ * The time until the Coin Window closes, as it counts down between pushes.
+ */
 const windowClosesIn = useCountdown(() => props.coinWindow?.closesIn)
 const coinAcceptorFreeIn = useCountdown(() => props.coinAcceptorBusy?.closesIn)
 </script>
@@ -49,17 +51,13 @@ const coinAcceptorFreeIn = useCountdown(() => props.coinAcceptorBusy?.closesIn)
 
   <UPageCard v-if="credit" variant="subtle" icon="i-lucide-wifi">
     <template #title>
-      <h1 class="text-lg font-semibold text-highlighted">
-        {{ text.onlineTitle }}
-      </h1>
+      <h1 class="text-lg font-semibold text-highlighted">{{ text.onlineTitle }}</h1>
     </template>
     <template #description>
       <dl class="grid gap-3">
         <div>
           <dt class="text-sm text-muted">{{ text.timeLeft }}</dt>
-          <dd class="text-2xl font-semibold text-highlighted">
-            {{ credit.timeLeft.formatted }}
-          </dd>
+          <dd class="text-2xl font-semibold text-highlighted">{{ credit.timeLeft.formatted }}</dd>
         </div>
         <div>
           <dt class="text-sm text-muted">{{ text.resumeCode }}</dt>
@@ -80,9 +78,7 @@ const coinAcceptorFreeIn = useCountdown(() => props.coinAcceptorBusy?.closesIn)
 
   <UPageCard v-else-if="!coinWindow" variant="subtle" icon="i-lucide-coins">
     <template #title>
-      <h1 class="text-lg font-semibold text-highlighted">
-        {{ text.noCreditTitle }}
-      </h1>
+      <h1 class="text-lg font-semibold text-highlighted">{{ text.noCreditTitle }}</h1>
     </template>
     <template #description>
       {{ text.noCreditBody }}
@@ -91,9 +87,7 @@ const coinAcceptorFreeIn = useCountdown(() => props.coinAcceptorBusy?.closesIn)
 
   <UPageCard v-if="coinWindow" variant="outline" icon="i-lucide-hand-coins">
     <template #title>
-      <h2 class="text-lg font-semibold text-highlighted">
-        {{ text.insertCoinsTitle }}
-      </h2>
+      <h2 class="text-lg font-semibold text-highlighted">{{ text.insertCoinsTitle }}</h2>
     </template>
     <template #description>
       <dl class="grid gap-3">
@@ -142,7 +136,6 @@ const coinAcceptorFreeIn = useCountdown(() => props.coinAcceptorBusy?.closesIn)
   </Form>
 
   <p class="text-center text-sm text-muted">
-    {{ text.yourDevice }}:
-    <span class="font-mono">{{ device.macAddress }}</span>
+    {{ text.yourDevice }}: <span class="font-mono">{{ device.macAddress }}</span>
   </p>
 </template>

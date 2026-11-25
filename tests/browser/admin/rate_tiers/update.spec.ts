@@ -7,10 +7,7 @@ test.group('Editing a Rate Tier', (group) => {
   group.each.setup(() => testUtils.db().truncate())
 
   test('saves its new price and time', async ({ visit, route, browserContext }) => {
-    const operator = await User.create({
-      email: 'operator@example.com',
-      password: 'secret1234',
-    })
+    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
     await RateTier.create({ priceCentavos: 500, minutes: 60 })
     await browserContext.loginAs(operator)
 
@@ -30,10 +27,7 @@ test.group('Editing a Rate Tier', (group) => {
     route,
     browserContext,
   }) => {
-    const operator = await User.create({
-      email: 'operator@example.com',
-      password: 'secret1234',
-    })
+    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
     const rateTier = await RateTier.create({ priceCentavos: 500, minutes: 60 })
     await browserContext.loginAs(operator)
 
@@ -46,15 +40,9 @@ test.group('Editing a Rate Tier', (group) => {
   })
 
   test('refuses the price of another Rate Tier', async ({ visit, route, browserContext, db }) => {
-    const operator = await User.create({
-      email: 'operator@example.com',
-      password: 'secret1234',
-    })
+    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
     await RateTier.create({ priceCentavos: 500, minutes: 60 })
-    const rateTier = await RateTier.create({
-      priceCentavos: 1000,
-      minutes: 150,
-    })
+    const rateTier = await RateTier.create({ priceCentavos: 1000, minutes: 150 })
     await browserContext.loginAs(operator)
 
     const page = await visit(route('admin.rate_tiers.edit', { id: rateTier.id }))
@@ -62,9 +50,7 @@ test.group('Editing a Rate Tier', (group) => {
     await page.getByRole('button', { name: 'Save', exact: true }).click()
 
     await page.assertVisible(
-      page.getByText('Another Rate Tier already has this price', {
-        exact: true,
-      })
+      page.getByText('Another Rate Tier already has this price', { exact: true })
     )
     await db.assertHas('rate_tiers', { id: rateTier.id, price_centavos: 1000 })
   })

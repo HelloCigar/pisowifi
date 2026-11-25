@@ -7,10 +7,7 @@ test.group('Deleting a Rate Tier', (group) => {
   group.each.setup(() => testUtils.db().truncate())
 
   test('removes it from the list', async ({ visit, route, browserContext }) => {
-    const operator = await User.create({
-      email: 'operator@example.com',
-      password: 'secret1234',
-    })
+    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
     await RateTier.create({ priceCentavos: 500, minutes: 60 })
     await RateTier.create({ priceCentavos: 2000, minutes: 300 })
     await browserContext.loginAs(operator)

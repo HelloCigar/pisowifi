@@ -1,8 +1,8 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 /**
- * All the coins from one Coin Window, priced together against the Rate Tiers
- * and added to a Credit.
+ * All the coins from one Coin Window, priced together against the Rate
+ * Tiers and added to a Credit.
  */
 export default class extends BaseSchema {
   protected tableName = 'top_ups'

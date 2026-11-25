@@ -13,6 +13,10 @@ export default configApp(
     },
   },
   {
+    name: 'formatting belongs to tidy',
+    rules: { 'prettier/prettier': 'off' },
+  },
+  {
     name: 'nuxt ui generated declarations',
     ignores: ['inertia/auto-imports.d.ts', 'inertia/components.d.ts'],
   }

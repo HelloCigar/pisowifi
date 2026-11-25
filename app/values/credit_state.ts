@@ -1,4 +1,6 @@
-/** The states of a Credit, stored as a tinyint. */
+/**
+ * The states of a Credit, stored as a tinyint.
+ */
 export const CreditState = {
   Counting: 0,
   Paused: 1,

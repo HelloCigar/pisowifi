@@ -9,8 +9,8 @@ export default defineConfig({
     vue(),
     ui({
       /**
-       * Make ULink, UButton, UNavigationMenu, etc. use Inertia's <Link> and
-       * read the active state from the current Inertia page.
+       * Make ULink, UButton, UNavigationMenu, etc. use Inertia's <Link>
+       * and read the active state from the current Inertia page.
        */
       router: 'inertia',
       /**
@@ -22,7 +22,9 @@ export default defineConfig({
           scan: true,
         },
       },
-      /** Colors and global component overrides, see theme.ts */
+      /**
+       * Colors and global component overrides, see theme.ts
+       */
       ui: theme,
       /**
        * Nuxt UI components (UButton, UDashboardPanel...) and composables
@@ -37,10 +39,7 @@ export default defineConfig({
         dirs: [],
       },
     }),
-    adonisjs({
-      entryPoints: ['inertia/app.ts'],
-      reload: ['resources/views/**/*.edge'],
-    }),
+    adonisjs({ entryPoints: ['inertia/app.ts'], reload: ['resources/views/**/*.edge'] }),
   ],
 
   resolve: {
@@ -53,8 +52,8 @@ export default defineConfig({
   server: {
     /**
      * The development server runs inside the app, and the captive portal
-     * answers every host name so it can redirect it to the portal. Vite's host
-     * check would block those requests first.
+     * answers every host name so it can redirect it to the portal. Vite's
+     * host check would block those requests first.
      */
     allowedHosts: true,
     watch: {

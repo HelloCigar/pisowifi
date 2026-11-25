@@ -17,7 +17,10 @@ export default class Money {
     return this.centavos / 100
   }
 
-  /** The amount as the Operator and Customers read it, such as `₱5` or `₱2.50`. */
+  /**
+   * The amount as the Operator and Customers read it, such as `₱5` or
+   * `₱2.50`.
+   */
   format() {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',

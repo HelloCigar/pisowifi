@@ -1,9 +1,9 @@
 import vine from '@vinejs/vine'
 
 /**
- * The setup wizard: the Operator's login, the hotspot name and the first Rate
- * Tiers. Prices are whole pesos up to ₱10,000, and a Rate Tier buys at most 30
- * days.
+ * The setup wizard: the Operator's login, the hotspot name and the first
+ * Rate Tiers. Prices are whole pesos up to ₱10,000, and a Rate Tier buys at
+ * most 30 days.
  */
 export const setupValidator = vine.create({
   email: vine.string().trim().email().maxLength(254),

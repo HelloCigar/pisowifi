@@ -6,8 +6,8 @@ import Credit from '#models/credit'
 import Coin from '#models/coin'
 
 /**
- * All the coins from one Coin Window, priced together against the Rate Tiers
- * and added to a Credit.
+ * All the coins from one Coin Window, priced together against the Rate
+ * Tiers and added to a Credit.
  */
 export default class TopUp extends TopUpSchema {
   @belongsTo(() => Credit)
