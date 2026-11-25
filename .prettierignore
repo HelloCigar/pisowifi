@@ -1,7 +1,0 @@
-.adonisjs
-node_modules
-build
-.flow/docs/
-.flow/lenses/
-.claude/skills/flow-*
-.claude/agents/flow-*

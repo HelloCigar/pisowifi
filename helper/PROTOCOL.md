@@ -18,7 +18,15 @@ The Go tests in `internal/server/server_test.go` talk to the real helper over it
 **Request** (app → helper):
 
 ```json
-{"id": 7, "method": "allow", "params": {"mac": "aa:bb:cc:00:00:01", "ip": "10.0.0.11", "speed_cap": {"down_kbps": 5000, "up_kbps": 2000}}}
+{
+  "id": 7,
+  "method": "allow",
+  "params": {
+    "mac": "aa:bb:cc:00:00:01",
+    "ip": "10.0.0.11",
+    "speed_cap": { "down_kbps": 5000, "up_kbps": 2000 }
+  }
+}
 ```
 
 - `id` is a JSON number or string the app chooses, unique among its requests in flight. The helper copies it into the reply as given. A request without `id` gets `"id": null`.
@@ -37,7 +45,7 @@ A line that is not valid JSON gets a `bad_request` reply with `"id": null`.
 **Event** (helper → app), pushed as it happens to every connected app. It has `event` and no `id`:
 
 ```json
-{"event": "device_online", "data": {"mac": "aa:bb:cc:00:00:01", "ip": "10.0.0.11"}}
+{ "event": "device_online", "data": { "mac": "aa:bb:cc:00:00:01", "ip": "10.0.0.11" } }
 ```
 
 ## Values
@@ -58,15 +66,15 @@ So after a reboot or power loss nobody gets online, and no coin is taken, until 
 
 ## Requests
 
-| Method | Params | Result | Errors |
-| --- | --- | --- | --- |
-| `health` | none | `{"backend": "simulator", "synced": false, "inhibited": true}` | |
-| `sync` | `{"devices": [{"mac", "ip", "speed_cap"}, …]}` | none | `bad_request` |
-| `allow` | `{"mac", "ip", "speed_cap"}` | none | `bad_request`, `not_synced` |
-| `block` | `{"mac"}` | none | `bad_request` |
-| `set_speed_cap` | `{"mac", "speed_cap"}` | none | `bad_request`, `not_synced`, `not_allowed` |
-| `lookup_mac` | `{"ip"}` | `{"mac"}` | `bad_request`, `unknown_ip` |
-| `set_inhibit` | `{"on"}` | none | `bad_request`, `not_synced` |
+| Method          | Params                                         | Result                                                         | Errors                                     |
+| --------------- | ---------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------ |
+| `health`        | none                                           | `{"backend": "simulator", "synced": false, "inhibited": true}` |                                            |
+| `sync`          | `{"devices": [{"mac", "ip", "speed_cap"}, …]}` | none                                                           | `bad_request`                              |
+| `allow`         | `{"mac", "ip", "speed_cap"}`                   | none                                                           | `bad_request`, `not_synced`                |
+| `block`         | `{"mac"}`                                      | none                                                           | `bad_request`                              |
+| `set_speed_cap` | `{"mac", "speed_cap"}`                         | none                                                           | `bad_request`, `not_synced`, `not_allowed` |
+| `lookup_mac`    | `{"ip"}`                                       | `{"mac"}`                                                      | `bad_request`, `unknown_ip`                |
+| `set_inhibit`   | `{"on"}`                                       | none                                                           | `bad_request`, `not_synced`                |
 
 - **`health`**: `backend` names the backend the helper drives. `synced` is true once the first `sync` has arrived. `inhibited` is true while the Coin Acceptor's inhibit line is on.
 - **`sync`**: replaces the whole allow list. The listed Devices are allowed with their speed caps, and every other Device is blocked. `devices` is required. An empty list (`[]`) blocks everyone. If `devices` is missing or one Device in it is invalid, nothing changes and it does not count as the first `sync`.
@@ -78,11 +86,11 @@ So after a reboot or power loss nobody gets online, and no coin is taken, until 
 
 ## Events
 
-| Event | Data | When |
-| --- | --- | --- |
-| `device_online` | `{"mac", "ip"}` | A Device connects to the Hotspot Network. |
-| `device_offline` | `{"mac"}` | A Device leaves the Hotspot Network. |
-| `coin` | `{"pesos"}` | The Coin Acceptor accepted a coin worth `pesos`. |
+| Event            | Data            | When                                             |
+| ---------------- | --------------- | ------------------------------------------------ |
+| `device_online`  | `{"mac", "ip"}` | A Device connects to the Hotspot Network.        |
+| `device_offline` | `{"mac"}`       | A Device leaves the Hotspot Network.             |
+| `coin`           | `{"pesos"}`     | The Coin Acceptor accepted a coin worth `pesos`. |
 
 **Coins.** The Coin Acceptor sends one pulse per peso, so a ₱20 coin is a train of 20 pulses that takes about a second. The helper sends one `coin` event per train, once the line has been quiet for 250 ms. Two coins dropped one after the other are two events. The helper sends every coin it counts, whatever the inhibit line says; a coin that arrives when no Coin Window is open is an Orphan Coin for the app to keep.
 
@@ -90,13 +98,13 @@ The helper does not replay events. An app that was not connected when an event h
 
 ## Error codes
 
-| Code | Meaning |
-| --- | --- |
-| `bad_request` | The line is not JSON, `params` is missing, or a value is invalid. The message says which. |
-| `unknown_method` | The helper does not know the method. |
-| `not_synced` | The request would open the firewall or enable the Coin Acceptor before the first `sync`. |
-| `not_allowed` | `set_speed_cap` on a blocked Device. |
-| `unknown_ip` | `lookup_mac` found no Device for the IP address. |
+| Code             | Meaning                                                                                                                                                                 |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bad_request`    | The line is not JSON, `params` is missing, or a value is invalid. The message says which.                                                                               |
+| `unknown_method` | The helper does not know the method.                                                                                                                                    |
+| `not_synced`     | The request would open the firewall or enable the Coin Acceptor before the first `sync`.                                                                                |
+| `not_allowed`    | `set_speed_cap` on a blocked Device.                                                                                                                                    |
+| `unknown_ip`     | `lookup_mac` found no Device for the IP address.                                                                                                                        |
 | `backend_failed` | The firewall, traffic control or leases could not be changed or read. The message has the cause. The app should treat the change as not made and retry, or send `sync`. |
 
 ## Still to come

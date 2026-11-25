@@ -1,6 +1,13 @@
 {
   "version": 2,
   "skills": {
+    "migrate-oxlint": {
+      "source": "oxc-project/oxc",
+      "commit": "738a564573843b2fa11670d332f6e5467e330422",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/migrate-oxlint/SKILL.md",
+      "computedHash": "a80950bd59f0c4370731be1a87c9d44863aba61f3f58175b2ba0b4dcf0c669ee"
+    },
     "nuxt-ui": {
       "source": "nuxt/ui",
       "commit": "ffda67ea935a9220bd19fab827ad3179cccda7aa",
