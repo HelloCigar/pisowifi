@@ -2,8 +2,8 @@ import { Duration } from 'luxon'
 import type { PortalLanguage } from '#values/portal_language'
 
 /**
- * A span of time in whole seconds, such as the time a Credit has left or
- * the time until a Coin Window closes.
+ * A span of time in whole seconds, such as the time a Credit has left or the
+ * time until a Coin Window closes.
  */
 export default class TimeSpan {
   constructor(readonly seconds: number) {
@@ -13,8 +13,8 @@ export default class TimeSpan {
   }
 
   /**
-   * The span as a Customer reads it, largest units first and without the
-   * units that are zero: `1 oras, 12 minuto` or `1 hour, 12 minutes`.
+   * The span as a Customer reads it, largest units first and without the units
+   * that are zero: `1 oras, 12 minuto` or `1 hour, 12 minutes`.
    */
   format(language: PortalLanguage) {
     const duration =

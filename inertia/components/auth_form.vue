@@ -5,13 +5,12 @@ import type { AuthFormField, ButtonProps, SeparatorProps } from '@nuxt/ui'
 import type { urlFor } from '~/client'
 
 /**
- * Port of Nuxt UI's <UAuthForm> built on the AdonisJS <Form> component.
- *
- * The form is a regular HTML form submitted by Inertia to a named AdonisJS
- * route: there is no client-side schema, VineJS on the server is the single
- * source of truth and its errors are displayed under the matching fields.
- * Extra attributes (`:options`, `reset-on-error`, `@success`...) are
- * forwarded to <Form>.
+ * Port of Nuxt UI's <UAuthForm> built on the AdonisJS <Form> component. The
+ * form is a regular HTML form submitted by Inertia to a named AdonisJS route:
+ * there is no client-side schema, VineJS on the server is the single source of
+ * truth and its errors are displayed under the matching fields. Extra
+ * attributes (`:options`, `reset-on-error`, `@success`...) are forwarded to
+ * <Form>.
  */
 defineOptions({ inheritAttrs: false })
 
@@ -32,27 +31,20 @@ type UiSlots =
 
 const props = withDefaults(
   defineProps<{
-    /**
-     * Named AdonisJS route the form is submitted to
-     */
+    /** Named AdonisJS route the form is submitted to */
     route: RouteName
-    /**
-     * The icon displayed above the title
-     */
+    /** The icon displayed above the title */
     icon?: string
     title?: string
     description?: string
     fields?: AuthFormField[]
-    /**
-     * Buttons displayed under the description, e.g. social logins
-     */
+    /** Buttons displayed under the description, e.g. social logins */
     providers?: ButtonProps[]
-    /**
-     * Text displayed in the separator between providers and fields
-     */
+    /** Text displayed in the separator between providers and fields */
     separator?: string | SeparatorProps
     /**
-     * Props of the submit button. Defaults to `{ label: 'Continue', block: true }`
+     * Props of the submit button. Defaults to `{ label: 'Continue', block: true
+     * }`
      */
     submit?: ButtonProps
     disabled?: boolean
@@ -90,14 +82,10 @@ const slots = defineSlots<
   } & Record<string, Slot | undefined>
 >()
 
-/**
- * Props for <UFormField> (label, hint...). Checkboxes render their own label.
- */
+/** Props for <UFormField> (label, hint...). Checkboxes render their own label. */
 const formFieldKeys = ['name', 'label', 'description', 'help', 'hint', 'size', 'required']
 
-/**
- * Props owned by <UFormField> and not forwarded to the control
- */
+/** Props owned by <UFormField> and not forwarded to the control */
 const formFieldOnlyKeys = ['type', 'help', 'hint', 'size', 'required', 'error']
 
 function formFieldProps(field: AuthFormField) {
@@ -118,9 +106,9 @@ function controlProps(field: AuthFormField) {
 
 /**
  * Field values. The controls are bound to this state (like <UAuthForm>) and
- * also carry a `name`, so the native form data submitted by <Form> picks
- * them up. Keeping them controlled preserves what the user typed when the
- * page re-renders with validation errors.
+ * also carry a `name`, so the native form data submitted by <Form> picks them
+ * up. Keeping them controlled preserves what the user typed when the page
+ * re-renders with validation errors.
  */
 const state = reactive<Record<string, any>>(
   Object.fromEntries(props.fields.map((field) => [field.name, field.defaultValue]))
@@ -135,9 +123,7 @@ function onError() {
 
 defineExpose({ state })
 
-/**
- * Read the server-side validation error of a field
- */
+/** Read the server-side validation error of a field */
 function errorOf(errors: object, name: string) {
   return (errors as Record<string, string | undefined>)[name]
 }

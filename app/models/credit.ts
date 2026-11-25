@@ -24,9 +24,7 @@ export default class Credit extends CreditSchema {
   @hasMany(() => TopUp)
   declare topUps: HasMany<typeof TopUp>
 
-  /**
-   * The Credit the Device holds, or null.
-   */
+  /** The Credit the Device holds, or null. */
   static heldBy(device: Device, options?: { client: TransactionClientContract }) {
     return this.query(options).where('device_id', device.id).first()
   }
@@ -41,8 +39,8 @@ export default class Credit extends CreditSchema {
   }
 
   /**
-   * Gives the Device a new Credit with no time yet and a new Resume Code.
-   * It counts down from now, so a Top-up added to it starts it.
+   * Gives the Device a new Credit with no time yet and a new Resume Code. It
+   * counts down from now, so a Top-up added to it starts it.
    */
   static async issue(device: Device, options: { client: TransactionClientContract }) {
     const now = DateTime.now()
@@ -80,9 +78,7 @@ export default class Credit extends CreditSchema {
     return new ResumeCode(this.resumeCode)
   }
 
-  /**
-   * The whole seconds left now, never below zero.
-   */
+  /** The whole seconds left now, never below zero. */
   get secondsLeft() {
     if (this.state !== CreditState.Counting || !this.countingSince) {
       return this.remainingSeconds
@@ -92,9 +88,9 @@ export default class Credit extends CreditSchema {
   }
 
   /**
-   * Adds the time of a Top-up and pushes the Expiry back to `expiryDays`
-   * from now. The time left so far is checkpointed first, so the countdown
-   * carries on from now.
+   * Adds the time of a Top-up and pushes the Expiry back to `expiryDays` from
+   * now. The time left so far is checkpointed first, so the countdown carries
+   * on from now.
    */
   async addTopUp(
     this: Credit,

@@ -2,8 +2,8 @@ import DemoNotifications from '#services/demo/notifications'
 
 export default class NotificationsController {
   /**
-   * JSON endpoint consumed by the notifications slideover, which is
-   * part of the persistent dashboard layout rather than a page.
+   * JSON endpoint consumed by the notifications slideover, which is part of the
+   * persistent dashboard layout rather than a page.
    */
   async index() {
     return new DemoNotifications().all()

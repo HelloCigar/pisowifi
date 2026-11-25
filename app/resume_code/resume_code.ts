@@ -21,9 +21,9 @@ export default class ResumeCode {
   }
 
   /**
-   * A new random code. Each character is drawn evenly from the alphabet:
-   * the random string's characters are uniform, and the ones outside the
-   * alphabet are dropped rather than mapped.
+   * A new random code. Each character is drawn evenly from the alphabet: the
+   * random string's characters are uniform, and the ones outside the alphabet
+   * are dropped rather than mapped.
    */
   static generate() {
     let code = ''
@@ -35,9 +35,7 @@ export default class ResumeCode {
     return new ResumeCode(code.slice(0, ResumeCode.length))
   }
 
-  /**
-   * The code as Customers read and write it down, such as `K7P-Q2M`.
-   */
+  /** The code as Customers read and write it down, such as `K7P-Q2M`. */
   format() {
     return `${this.value.slice(0, 3)}-${this.value.slice(3)}`
   }

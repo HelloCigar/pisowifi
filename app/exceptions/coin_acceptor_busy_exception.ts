@@ -2,8 +2,8 @@ import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
 
 /**
- * Another Device holds the Coin Acceptor. The portal shows the Customer
- * when it will be free, so this only sends them back to it.
+ * Another Device holds the Coin Acceptor. The portal shows the Customer when it
+ * will be free, so this only sends them back to it.
  */
 export default class CoinAcceptorBusyException extends Exception {
   static status = 409

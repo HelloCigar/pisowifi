@@ -1,9 +1,9 @@
 import type { Page } from 'playwright'
 
 /**
- * Fills the setup wizard as a new Operator does, with one Rate Tier of ₱5
- * for 60 minutes. The Operator logs in as `operator@example.com` with the
- * password `secret1234`.
+ * Fills the setup wizard as a new Operator does, with one Rate Tier of ₱5 for
+ * 60 minutes. The Operator logs in as `operator@example.com` with the password
+ * `secret1234`.
  */
 export async function fillSetupWizard(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('operator@example.com')
@@ -14,9 +14,7 @@ export async function fillSetupWizard(page: Page) {
   await page.getByLabel('Minutes of tier 1', { exact: true }).fill('60')
 }
 
-/**
- * Submits the admin login form.
- */
+/** Submits the admin login form. */
 export async function logIn(page: Page, email: string, password: string) {
   await page.getByLabel('Email', { exact: true }).fill(email)
   await page.getByLabel('Password', { exact: true }).fill(password)

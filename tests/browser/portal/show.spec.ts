@@ -67,7 +67,10 @@ test.group('Portal', (group) => {
     const page = await visit(route('portal'))
 
     await page.assertVisible(
-      page.getByRole('heading', { name: 'Hindi makilala ang iyong Device', exact: true })
+      page.getByRole('heading', {
+        name: 'Hindi makilala ang iyong Device',
+        exact: true,
+      })
     )
     await db.assertEmpty('devices')
   })

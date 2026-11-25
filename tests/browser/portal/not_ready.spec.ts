@@ -12,7 +12,10 @@ test.group('Portal before setup', (group) => {
     const page = await visit(route('portal'))
 
     await page.assertVisible(
-      page.getByRole('heading', { name: 'Hindi pa handa ang Machine', exact: true })
+      page.getByRole('heading', {
+        name: 'Hindi pa handa ang Machine',
+        exact: true,
+      })
     )
   })
 })

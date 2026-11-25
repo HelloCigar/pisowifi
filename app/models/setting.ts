@@ -36,10 +36,7 @@ export default class Setting extends SettingSchema {
     return this.first()
   }
 
-  /**
-   * Creates the settings row with the defaults the Operator can change
-   * later.
-   */
+  /** Creates the settings row with the defaults the Operator can change later. */
   static createWithDefaults(hotspotName: string, options?: { client: TransactionClientContract }) {
     return this.create(
       {

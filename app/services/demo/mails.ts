@@ -1,9 +1,7 @@
 import type { DemoMail } from '#types/templates'
 import { sub } from 'date-fns'
 
-/**
- * Demo mails for the layout templates.
- */
+/** Demo mails for the layout templates. */
 export default class DemoMails {
   all(): DemoMail[] {
     return [

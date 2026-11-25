@@ -2,8 +2,8 @@ import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
 
 /**
- * The helper knows no Device at the request's IP address, for example when
- * the request does not come from the Hotspot Network.
+ * The helper knows no Device at the request's IP address, for example when the
+ * request does not come from the Hotspot Network.
  */
 export default class UnknownDeviceException extends Exception {
   static status = 403

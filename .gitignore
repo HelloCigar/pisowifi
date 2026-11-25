@@ -29,3 +29,4 @@ yarn-error.log
 .claude/skills/flow-*
 .claude/agents/flow-*
 .claude/skills/nuxt-ui/
+.claude/skills/migrate-oxlint

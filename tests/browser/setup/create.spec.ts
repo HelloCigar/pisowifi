@@ -60,13 +60,18 @@ test.group('Setup wizard', (group) => {
     await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
 
     await page.assertVisible(
-      page.getByText('Two Rate Tiers cannot have the same price', { exact: true })
+      page.getByText('Two Rate Tiers cannot have the same price', {
+        exact: true,
+      })
     )
     await db.assertEmpty('users')
   })
 
   test('cannot be reached once an Operator exists', async ({ visit, route }) => {
-    await User.create({ email: 'operator@example.com', password: 'secret1234' })
+    await User.create({
+      email: 'operator@example.com',
+      password: 'secret1234',
+    })
 
     const page = await visit(route('setup.create'))
 

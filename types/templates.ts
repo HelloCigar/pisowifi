@@ -1,6 +1,6 @@
 /**
- * Shapes of the demo data rendered by the layout templates.
- * They mirror the types in `inertia/types/dashboard.d.ts`.
+ * Shapes of the demo data rendered by the layout templates. They mirror the
+ * types in `inertia/types/dashboard.d.ts`.
  */
 export interface DemoAvatar {
   src?: string

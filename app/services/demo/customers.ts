@@ -1,8 +1,6 @@
 import type { DemoCustomer } from '#types/templates'
 
-/**
- * Demo customers for the layout templates.
- */
+/** Demo customers for the layout templates. */
 export default class DemoCustomers {
   all(): DemoCustomer[] {
     return [

@@ -5,9 +5,9 @@ import { Form } from '@adonisjs/inertia/vue'
 import { usePortalText } from '~/composables/use_portal_text'
 
 /**
- * The Customer-facing shell of the portal: one narrow column that fits a
- * phone, a header with the Machine's name and the language switch, and the
- * page below.
+ * The Customer-facing shell of the portal: one narrow column that fits a phone,
+ * a header with the Machine's name and the language switch, and the page
+ * below.
  */
 const page = usePage()
 const text = usePortalText()

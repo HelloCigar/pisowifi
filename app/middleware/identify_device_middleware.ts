@@ -16,8 +16,8 @@ declare module '@adonisjs/core/http' {
  * address behind the request's IP address, from the DHCP leases or the ARP
  * table, and the sighting is recorded on the Device.
  *
- * The Device is the segregation key of the portal: every read and write of
- * the portal reaches its records through `ctx.device`.
+ * The Device is the segregation key of the portal: every read and write of the
+ * portal reaches its records through `ctx.device`.
  */
 @inject()
 export default class IdentifyDeviceMiddleware {

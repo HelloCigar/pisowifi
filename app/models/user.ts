@@ -10,8 +10,8 @@ import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
  */
 export default class User extends compose(UserSchema, withAuthFinder(hash)) {
   /**
-   * Whether the Machine has its Operator. The setup wizard closes for good
-   * once it does.
+   * Whether the Machine has its Operator. The setup wizard closes for good once
+   * it does.
    *
    * Global on purpose: one Machine has one Operator.
    */

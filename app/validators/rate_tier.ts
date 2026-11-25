@@ -2,8 +2,8 @@ import vine from '@vinejs/vine'
 import Money from '#money/money'
 
 /**
- * Adding a Rate Tier. The price is a whole number of pesos up to ₱10,000,
- * and no other Rate Tier may have it. A Rate Tier buys at most 30 days.
+ * Adding a Rate Tier. The price is a whole number of pesos up to ₱10,000, and
+ * no other Rate Tier may have it. A Rate Tier buys at most 30 days.
  */
 export const createRateTierValidator = vine.create({
   price: vine

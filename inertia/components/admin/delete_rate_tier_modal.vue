@@ -3,9 +3,7 @@ import { ref } from 'vue'
 import { Form } from '@adonisjs/inertia/vue'
 import type { Data } from '@generated/data'
 
-/**
- * Asks the Operator to confirm before a Rate Tier is deleted.
- */
+/** Asks the Operator to confirm before a Rate Tier is deleted. */
 defineProps<{
   rateTier: Data.RateTier
 }>()

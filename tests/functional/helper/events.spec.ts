@@ -23,6 +23,10 @@ test.group('Helper events', (group) => {
 
     await helper.sendCoin(5)
 
-    await db.assertHas('coins', { amount_centavos: 500, coin_window_id: null, top_up_id: null })
+    await db.assertHas('coins', {
+      amount_centavos: 500,
+      coin_window_id: null,
+      top_up_id: null,
+    })
   })
 })

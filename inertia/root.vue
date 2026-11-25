@@ -4,9 +4,9 @@ import { useColorMode } from '@vueuse/core'
 import { useFlashToasts } from '~/composables/use_flash_toasts'
 
 /**
- * Wraps every Inertia page. <UApp> provides toasts, tooltips and overlays
- * to all Nuxt UI components, and flash messages from the server are
- * turned into Nuxt UI toasts.
+ * Wraps every Inertia page. <UApp> provides toasts, tooltips and overlays to
+ * all Nuxt UI components, and flash messages from the server are turned into
+ * Nuxt UI toasts.
  */
 const colorMode = useColorMode()
 

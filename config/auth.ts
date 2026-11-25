@@ -3,19 +3,13 @@ import { sessionGuard, sessionUserProvider } from '@adonisjs/auth/session'
 import type { InferAuthenticators, InferAuthEvents, Authenticators } from '@adonisjs/auth/types'
 
 const authConfig = defineConfig({
-  /**
-   * Default guard used when no guard is explicitly specified.
-   */
+  /** Default guard used when no guard is explicitly specified. */
   default: 'web',
 
   guards: {
-    /**
-     * Session-based guard for browser authentication.
-     */
+    /** Session-based guard for browser authentication. */
     web: sessionGuard({
-      /**
-       * Enable persistent login using remember-me tokens.
-       */
+      /** Enable persistent login using remember-me tokens. */
       useRememberMeTokens: false,
 
       provider: sessionUserProvider({
@@ -27,10 +21,7 @@ const authConfig = defineConfig({
 
 export default authConfig
 
-/**
- * Inferring types from the configured auth
- * guards.
- */
+/** Inferring types from the configured auth guards. */
 declare module '@adonisjs/auth/types' {
   export interface Authenticators extends InferAuthenticators<typeof authConfig> {}
 }

@@ -2,40 +2,30 @@ import app from '@adonisjs/core/services/app'
 import { defineConfig } from '@adonisjs/lucid'
 
 const dbConfig = defineConfig({
-  /**
-   * Default connection used for all queries.
-   */
+  /** Default connection used for all queries. */
   connection: 'sqlite',
 
   connections: {
-    /**
-     * SQLite connection (default).
-     */
+    /** SQLite connection (default). */
     sqlite: {
       client: 'better-sqlite3',
 
       connection: {
         /**
-         * Database file location. Tests get their own file, because the
-         * suite migrates and truncates it on every run.
+         * Database file location. Tests get their own file, because the suite
+         * migrates and truncates it on every run.
          */
         filename: app.tmpPath(app.inTest ? 'test.sqlite3' : 'db.sqlite3'),
       },
 
-      /**
-       * Required by Knex for SQLite defaults.
-       */
+      /** Required by Knex for SQLite defaults. */
       useNullAsDefault: true,
 
       migrations: {
-        /**
-         * Sort migration files naturally by filename.
-         */
+        /** Sort migration files naturally by filename. */
         naturalSort: true,
 
-        /**
-         * Paths containing migration files.
-         */
+        /** Paths containing migration files. */
         paths: ['database/migrations'],
       },
 
@@ -45,10 +35,7 @@ const dbConfig = defineConfig({
       },
     },
 
-    /**
-     * PostgreSQL connection.
-     * Install package to switch: npm install pg
-     */
+    /** PostgreSQL connection. Install package to switch: npm install pg */
     // pg: {
     //   client: 'pg',
     //   connection: {
@@ -69,10 +56,7 @@ const dbConfig = defineConfig({
     //   debug: app.inDev,
     // },
 
-    /**
-     * MySQL / MariaDB connection.
-     * Install package to switch: npm install mysql2
-     */
+    /** MySQL / MariaDB connection. Install package to switch: npm install mysql2 */
     // mysql: {
     //   client: 'mysql2',
     //   connection: {
@@ -94,8 +78,8 @@ const dbConfig = defineConfig({
     // },
 
     /**
-     * Microsoft SQL Server connection.
-     * Install package to switch: npm install tedious
+     * Microsoft SQL Server connection. Install package to switch: npm install
+     * tedious
      */
     // mssql: {
     //   client: 'mssql',
@@ -118,8 +102,8 @@ const dbConfig = defineConfig({
     // },
 
     /**
-     * libSQL (Turso) connection.
-     * Install package to switch: npm install @libsql/client
+     * LibSQL (Turso) connection. Install package to switch: npm install
+     * @libsql/client
      */
     // libsql: {
     //   client: 'libsql',

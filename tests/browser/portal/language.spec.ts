@@ -15,7 +15,10 @@ test.group('Portal language', (group) => {
     await page.getByRole('button', { name: 'English', exact: true }).click()
 
     await page.assertVisible(
-      page.getByRole('heading', { name: 'You have no Credit yet', exact: true })
+      page.getByRole('heading', {
+        name: 'You have no Credit yet',
+        exact: true,
+      })
     )
   })
 
@@ -30,7 +33,10 @@ test.group('Portal language', (group) => {
     const nextPage = await visit(route('portal'))
 
     await nextPage.assertVisible(
-      nextPage.getByRole('heading', { name: 'You have no Credit yet', exact: true })
+      nextPage.getByRole('heading', {
+        name: 'You have no Credit yet',
+        exact: true,
+      })
     )
   })
 

@@ -19,26 +19,26 @@ import MachineNotReadyException from '#exceptions/machine_not_ready_exception'
 
 /**
  * A Coin Window's life: a Device takes the Coin Acceptor, coins extend the
- * window, and closing it turns its coins into one Top-up on the Device's
- * Credit and lets the Device online.
+ * window, and closing it turns its coins into one Top-up on the Device's Credit
+ * and lets the Device online.
  *
- * The Coin Acceptor's inhibit line follows the window: off while a window
- * is open, on otherwise, so a coin can only be credited to the Device that
- * holds the window.
+ * The Coin Acceptor's inhibit line follows the window: off while a window is
+ * open, on otherwise, so a coin can only be credited to the Device that holds
+ * the window.
  *
- * Pages learn of each change over Transmit once it is saved: the holder on
- * its Device's channel, and every portal on the Coin Acceptor's channel
- * when the window opens or closes. A message only says what changed; the
- * page reloads its props to read it.
+ * Pages learn of each change over Transmit once it is saved: the holder on its
+ * Device's channel, and every portal on the Coin Acceptor's channel when the
+ * window opens or closes. A message only says what changed; the page reloads
+ * its props to read it.
  */
 @inject()
 export default class CoinWindowService {
   constructor(protected helper: HelperClient) {}
 
   /**
-   * Gives the Coin Acceptor to the Device. A Device that already holds it
-   * keeps its window, and the inhibit line goes off again, in case the
-   * helper restarted and turned it on.
+   * Gives the Coin Acceptor to the Device. A Device that already holds it keeps
+   * its window, and the inhibit line goes off again, in case the helper
+   * restarted and turned it on.
    */
   async open(device: Device) {
     const settings = await this.#settings()
@@ -86,17 +86,19 @@ export default class CoinWindowService {
     }
 
     if (opened) {
-      transmit.broadcast(LiveChannel.CoinAcceptor, { type: 'coin_window.opened' })
+      transmit.broadcast(LiveChannel.CoinAcceptor, {
+        type: 'coin_window.opened',
+      })
     }
   }
 
   /**
    * Records a coin the Coin Acceptor accepted. A coin during a Coin Window
-   * belongs to it and moves its close time to now plus the Coin Window
-   * length. A coin that arrives after the close time, before the window is
-   * closed, still belongs to it, since the Coin Acceptor only took it for
-   * that Device, but does not keep the window open. A coin with no window
-   * open is an Orphan Coin.
+   * belongs to it and moves its close time to now plus the Coin Window length.
+   * A coin that arrives after the close time, before the window is closed,
+   * still belongs to it, since the Coin Acceptor only took it for that Device,
+   * but does not keep the window open. A coin with no window open is an Orphan
+   * Coin.
    */
   async receiveCoin(pesos: number) {
     const settings = await this.#settings()
@@ -124,18 +126,20 @@ export default class CoinWindowService {
     if (!window) {
       return
     }
-    transmit.broadcast(Device.coinWindowChannel(window.deviceId), { type: 'coin_window.coin' })
+    transmit.broadcast(Device.coinWindowChannel(window.deviceId), {
+      type: 'coin_window.coin',
+    })
   }
 
   /**
-   * Closes the window and gives the Coin Acceptor back. If the window
-   * received any coins, they become one Top-up on the Device's Credit, or
-   * on a new Credit, and the Device is let online.
+   * Closes the window and gives the Coin Acceptor back. If the window received
+   * any coins, they become one Top-up on the Device's Credit, or on a new
+   * Credit, and the Device is let online.
    *
    * A coin dropped just before closing is still sending its pulses, so the
-   * window stops first: it takes no more time, the inhibit line goes on, and
-   * it keeps the Coin Acceptor while the coins in flight arrive. Only then
-   * does it close and price its coins.
+   * window stops first: it takes no more time, the inhibit line goes on, and it
+   * keeps the Coin Acceptor while the coins in flight arrive. Only then does it
+   * close and price its coins.
    */
   async close(window: CoinWindow) {
     const settings = await this.#settings()
@@ -179,7 +183,10 @@ export default class CoinWindowService {
         (await Credit.heldBy(open.device, { client: trx })) ??
         (await Credit.issue(open.device, { client: trx }))
       const topUp = await credit.addTopUp(
-        { totalCentavos: total.centavos, secondsAdded: rateCard.secondsFor(total) },
+        {
+          totalCentavos: total.centavos,
+          secondsAdded: rateCard.secondsFor(total),
+        },
         settings.data.expiryDays
       )
       await Coin.query({ client: trx })
@@ -196,8 +203,12 @@ export default class CoinWindowService {
     if (!closed) {
       return
     }
-    transmit.broadcast(LiveChannel.CoinAcceptor, { type: 'coin_window.closed' })
-    transmit.broadcast(Device.coinWindowChannel(window.deviceId), { type: 'coin_window.closed' })
+    transmit.broadcast(LiveChannel.CoinAcceptor, {
+      type: 'coin_window.closed',
+    })
+    transmit.broadcast(Device.coinWindowChannel(window.deviceId), {
+      type: 'coin_window.closed',
+    })
     if (!closed.toppedUp) {
       return
     }
@@ -210,9 +221,9 @@ export default class CoinWindowService {
   }
 
   /**
-   * Moves the close time of a window that is still open to now, so later
-   * coins still belong to it but no longer keep it open. Returns false when
-   * the window is closed already, and another may hold the Coin Acceptor.
+   * Moves the close time of a window that is still open to now, so later coins
+   * still belong to it but no longer keep it open. Returns false when the
+   * window is closed already, and another may hold the Coin Acceptor.
    */
   async #stop(window: CoinWindow) {
     return db.transaction(async (trx) => {

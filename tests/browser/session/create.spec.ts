@@ -10,7 +10,10 @@ test.group('Login page', (group) => {
     route,
     browserContext,
   }) => {
-    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
+    const operator = await User.create({
+      email: 'operator@example.com',
+      password: 'secret1234',
+    })
     await browserContext.loginAs(operator)
 
     const page = await visit(route('admin.session.create'))

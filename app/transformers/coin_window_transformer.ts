@@ -3,8 +3,8 @@ import { BaseTransformer } from '@adonisjs/core/transformers'
 
 export default class CoinWindowTransformer extends BaseTransformer<CoinWindow> {
   /**
-   * The time until the window closes, which is when the Coin Acceptor is
-   * free again. The page counts it down and formats it (useCountdown).
+   * The time until the window closes, which is when the Coin Acceptor is free
+   * again. The page counts it down and formats it (useCountdown).
    */
   toObject() {
     return {

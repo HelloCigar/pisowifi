@@ -7,9 +7,7 @@ import { insertCoin, tapDone } from '#tests/helpers/portal'
 import { useFakeHelperClient, useSyncedFakeHelperClient } from '#tests/helpers/helper_client'
 import CloseTimedOutCoinWindowsTask from '#tasks/close_timed_out_coin_windows.task'
 
-/**
- * Six characters with no look-alikes, shown as `XXX-XXX`.
- */
+/** Six characters with no look-alikes, shown as `XXX-XXX`. */
 const resumeCode = /^[A-HJKMNP-Z2-9]{3}-[A-HJKMNP-Z2-9]{3}$/
 
 test.group('Coin Window', (group) => {
@@ -451,7 +449,10 @@ test.group('Coin Window', (group) => {
   }) => {
     const helper = await useSyncedFakeHelperClient()
     helper.mapIp('127.0.0.1', 'aa:bb:cc:00:00:01')
-    const operator = await User.create({ email: 'operator@example.com', password: 'secret1234' })
+    const operator = await User.create({
+      email: 'operator@example.com',
+      password: 'secret1234',
+    })
     await browserContext.loginAs(operator)
     const page = await visit(route('portal'))
     const admin = await visit(route('admin.rate_tiers.index'))
@@ -505,7 +506,9 @@ test.group('Coin Window', (group) => {
       otherPage.getByText('May gumagamit ng Coin Acceptor', { exact: true })
     )
     await otherPage.assertVisible(
-      otherPage.getByText('Magagamit mo ito sa loob ng 1 minuto', { exact: true })
+      otherPage.getByText('Magagamit mo ito sa loob ng 1 minuto', {
+        exact: true,
+      })
     )
     await otherPage.assertNotExists(
       otherPage.getByRole('button', { name: 'Maghulog ng Barya', exact: true })

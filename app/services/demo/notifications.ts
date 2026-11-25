@@ -1,9 +1,7 @@
 import type { DemoNotification } from '#types/templates'
 import { sub } from 'date-fns'
 
-/**
- * Demo notifications for the layout templates.
- */
+/** Demo notifications for the layout templates. */
 export default class DemoNotifications {
   all(): DemoNotification[] {
     return [

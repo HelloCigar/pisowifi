@@ -2,8 +2,8 @@ import { computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 
 /**
- * The portal's words in each language. Filipino is the default; the
- * Customer can switch to English for the visit.
+ * The portal's words in each language. Filipino is the default; the Customer
+ * can switch to English for the visit.
  */
 const portalText = {
   fil: {
@@ -53,9 +53,7 @@ const portalText = {
   },
 } as const
 
-/**
- * The portal's words in the language the Customer picked.
- */
+/** The portal's words in the language the Customer picked. */
 export function usePortalText() {
   const page = usePage()
   return computed(() => portalText[page.props.portalLanguage])

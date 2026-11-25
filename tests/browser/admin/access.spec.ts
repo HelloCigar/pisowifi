@@ -9,7 +9,10 @@ test.group('Admin panel access', (group) => {
   test('sends a visitor who is not logged in from {$self} to the login')
     .with(['admin.dashboard', 'admin.rate_tiers.index', 'admin.rate_tiers.create'] as const)
     .run(async ({ visit, route }, routeName) => {
-      await User.create({ email: 'operator@example.com', password: 'secret1234' })
+      await User.create({
+        email: 'operator@example.com',
+        password: 'secret1234',
+      })
 
       const page = await visit(route(routeName))
 
@@ -20,7 +23,10 @@ test.group('Admin panel access', (group) => {
     visit,
     route,
   }) => {
-    await User.create({ email: 'operator@example.com', password: 'secret1234' })
+    await User.create({
+      email: 'operator@example.com',
+      password: 'secret1234',
+    })
     const rateTier = await RateTier.create({ priceCentavos: 500, minutes: 60 })
 
     const page = await visit(route('admin.rate_tiers.edit', { id: rateTier.id }))

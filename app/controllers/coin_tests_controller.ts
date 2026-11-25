@@ -6,10 +6,10 @@ import { LiveChannel } from '#values/live_channel'
 
 /**
  * The setup wizard's Coin Acceptor test. Starting it lets the Coin Acceptor
- * take coins, and the page shows the value of each one, so the Operator
- * knows it is wired and gives one pulse per peso. Stopping it makes the
- * Coin Acceptor reject coins again. Like the wizard, it closes for good
- * once an Operator exists.
+ * take coins, and the page shows the value of each one, so the Operator knows
+ * it is wired and gives one pulse per peso. Stopping it makes the Coin Acceptor
+ * reject coins again. Like the wizard, it closes for good once an Operator
+ * exists.
  */
 @inject()
 export default class CoinTestsController {

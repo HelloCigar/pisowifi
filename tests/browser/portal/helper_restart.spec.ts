@@ -28,7 +28,11 @@ test.group('Helper restart', (group) => {
     await new HelperProvider(app).ready()
 
     assert.deepEqual(restarted.lastSync, [
-      { mac: 'aa:bb:cc:00:00:01', ip: '127.0.0.1', speedCap: { downKbps: 5000, upKbps: 2000 } },
+      {
+        mac: 'aa:bb:cc:00:00:01',
+        ip: '127.0.0.1',
+        speedCap: { downKbps: 5000, upKbps: 2000 },
+      },
     ])
   })
 

@@ -1,14 +1,15 @@
 /**
- * Nuxt UI theme, following antfu's design system (https://github.com/antfu/design).
+ * Nuxt UI theme, following antfu's design system
+ * (https://github.com/antfu/design).
  *
- * Tokens (colors, fonts, radius, surfaces) live in `inertia/css/app.css`. This file
- * assigns the color ramps to Nuxt UI's semantic colors and applies the few
+ * Tokens (colors, fonts, radius, surfaces) live in `inertia/css/app.css`. This
+ * file assigns the color ramps to Nuxt UI's semantic colors and applies the few
  * component-level rules of the design system globally, so pages never need
  * one-off classes for them.
  */
 
 /**
- * antfu's `bg-glass:75`: floating panels are translucent and blur what is
+ * Antfu's `bg-glass:75`: floating panels are translucent and blur what is
  * behind them. Modals and slideovers stay opaque.
  */
 const glass = 'bg-default/75 backdrop-blur-md'
@@ -31,12 +32,11 @@ export const theme = {
   inputMenu: { slots: { content: glass } },
 
   /**
-   * Hierarchy: most text is muted, `text-highlighted` is reserved for what matters
+   * Hierarchy: most text is muted, `text-highlighted` is reserved for what
+   * matters
    */
   table: { slots: { th: 'font-medium text-muted' } },
 
-  /**
-   * Technical values are mono and tabular
-   */
+  /** Technical values are mono and tabular */
   kbd: { slots: { base: 'font-mono' } },
 }

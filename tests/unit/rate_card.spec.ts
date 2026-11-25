@@ -29,7 +29,10 @@ test.group('Rate card', () => {
       const rateCard = new RateCard(
         tiers.split(' ').map((tier) => {
           const [price, tierMinutes] = tier.slice(1).split('=')
-          return { price: Money.fromPesos(Number(price)), minutes: Number(tierMinutes) }
+          return {
+            price: Money.fromPesos(Number(price)),
+            minutes: Number(tierMinutes),
+          }
         })
       )
 

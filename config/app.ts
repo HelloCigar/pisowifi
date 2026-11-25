@@ -1,26 +1,24 @@
 import env from '#start/env'
 import { defineConfig } from '@adonisjs/core/http'
 
-/**
- * The configuration settings used by the HTTP server
- */
+/** The configuration settings used by the HTTP server */
 export const http = defineConfig({
   /**
-   * Generate a unique request id for each incoming request.
-   * Useful to correlate logs and debug a request flow.
+   * Generate a unique request id for each incoming request. Useful to correlate
+   * logs and debug a request flow.
    */
   generateRequestId: true,
 
   /**
-   * Allow HTTP method spoofing via the "_method" form/query parameter.
-   * This lets HTML forms target PUT/PATCH/DELETE routes while still
-   * submitting with POST.
+   * Allow HTTP method spoofing via the "_method" form/query parameter. This
+   * lets HTML forms target PUT/PATCH/DELETE routes while still submitting with
+   * POST.
    */
   allowMethodSpoofing: false,
 
   /**
-   * Enabling async local storage will let you access HTTP context
-   * from anywhere inside your application.
+   * Enabling async local storage will let you access HTTP context from anywhere
+   * inside your application.
    */
   useAsyncLocalStorage: false,
 
@@ -29,14 +27,14 @@ export const http = defineConfig({
   },
 
   /**
-   * Redirect configuration controls the behavior of
-   * response.redirect().back() and query string forwarding.
+   * Redirect configuration controls the behavior of response.redirect().back()
+   * and query string forwarding.
    */
   redirect: {
     /**
      * When enabled, all redirects automatically carry over the current
-     * request's query string parameters to the redirect destination.
-     * Use withQs(false) to opt out for a specific redirect.
+     * request's query string parameters to the redirect destination. Use
+     * withQs(false) to opt out for a specific redirect.
      */
     forwardQueryString: true,
   },
@@ -47,24 +45,18 @@ export const http = defineConfig({
    */
   cookie: {
     /**
-     * Restrict the cookie to a specific domain.
-     * Keep empty to use the current host.
+     * Restrict the cookie to a specific domain. Keep empty to use the current
+     * host.
      */
     domain: '',
 
-    /**
-     * Restrict the cookie to a URL path. '/' means all routes.
-     */
+    /** Restrict the cookie to a URL path. '/' means all routes. */
     path: '/',
 
-    /**
-     * Default lifetime for cookies managed by the HTTP layer.
-     */
+    /** Default lifetime for cookies managed by the HTTP layer. */
     maxAge: '2h',
 
-    /**
-     * Prevent JavaScript access to the cookie in the browser.
-     */
+    /** Prevent JavaScript access to the cookie in the browser. */
     httpOnly: true,
 
     /**
@@ -74,9 +66,7 @@ export const http = defineConfig({
      */
     secure: new URL(env.get('APP_URL')).protocol === 'https:',
 
-    /**
-     * Cross-site policy for cookie sending.
-     */
+    /** Cross-site policy for cookie sending. */
     sameSite: 'lax',
   },
 })
